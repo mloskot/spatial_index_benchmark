@@ -1,6 +1,6 @@
 //#include <cstdint>
 #include <cstdlib>
-#include <SpatialIndex/SpatialIndex.h>
+#include <spatialindex/SpatialIndex.h>
 #include "spatial_index_benchmark.hpp"
 using namespace std;
 namespace si = SpatialIndex;
