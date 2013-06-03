@@ -37,26 +37,34 @@ else()
   endif()
 endif()
 
-# benchmark: libspatialindex 
-set(TARGET_BSI benchmark_spatialindex)
-find_package(SpatialIndex 1.7.0)
-if (SPATIALINDEX_FOUND)
-  message(STATUS "Configuring ${TARGET_BSI}")
-  add_executable(${TARGET_BSI} benchmark_spatialindex.cpp)
-  target_link_libraries(${TARGET_BSI} ${SPATIALINDEX_LIBRARY})
-  set_property(TARGET ${TARGET_BSI} APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
-endif()
-
-# benchmark: Boost.Geometry
-set(TARGET_BGI benchmark_boost_geometry)
-#set(Boost_FIND_QUIETLY TRUE)
+# Dependencies
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Boost 1.54)
-if (Boost_FOUND)
-  message(STATUS "Configuring ${TARGET_BGI}")
-  add_executable(${TARGET_BGI} benchmark_boost_geometry.cpp)
-  set_property(TARGET ${TARGET_BGI} APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
+if (NOT Boost_FOUND)
+  message(FATAL_ERROR "Cannot find Boost")
 endif()
+
+find_package(SpatialIndex 1.7.0)
+if (NOT SPATIALINDEX_FOUND)
+  message(FATAL_ERROR "Cannot find SpatialIndex")
+endif()
+
+set(SRC_COMMON
+    spatial_index_benchmark.hpp
+    high_resolution_timer.hpp)
+
+# benchmark: libspatialindex 
+set(TARGET_BSI benchmark_spatialindex)
+message(STATUS "Configuring ${TARGET_BSI}")
+add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
+target_link_libraries(${TARGET_BSI} ${SPATIALINDEX_LIBRARY})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY
+  INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+
+# benchmark: Boost.Geometry
+set(TARGET_BGI benchmark_boost_geometry)
+message(STATUS "Configuring ${TARGET_BGI}")
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY
+  INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
