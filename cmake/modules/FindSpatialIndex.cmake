@@ -78,9 +78,9 @@ if (SPATIALINDEX_INCLUDE_DIR)
     set(SPATIALINDEX_VERSION "${SIDX_VERSION_MAJOR}.${SIDX_VERSION_MINOR}.${SIDX_VERSION_REV}"
       CACHE INTERNAL "The version string for SpatialIndex library")
 
-    if (SPATIALINDEX_FIND_QUIETLY AND
+    if (NOT SPATIALINDEX_FIND_QUIETLY AND
         (SPATIALINDEX_VERSION VERSION_EQUAL SpatialIndex_FIND_VERSION OR
-          SPATIALINDEX_VERSION VERSION_GREATER SpatialIndex_FIND_VERSION))
+         SPATIALINDEX_VERSION VERSION_GREATER SpatialIndex_FIND_VERSION))
       message(STATUS "Found SpatialIndex version: ${SPATIALINDEX_VERSION}")
     else()
         message(FATAL_ERROR "SpatialIndex version check failed. Version ${SPATIALINDEX_VERSION} was found, at least version ${SpatialIndex_FIND_VERSION} is required")
