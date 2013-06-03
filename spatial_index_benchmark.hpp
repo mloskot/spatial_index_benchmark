@@ -1,4 +1,4 @@
-//
+    //
 // Copyright (C) 2013 Mateusz Loskot <mateusz@loskot.net>
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -11,8 +11,10 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -34,40 +36,72 @@ std::size_t max_iterations = 1000;
 //
 // Generators of random objects
 //
-typedef std::vector<std::tuple<float, float>> coords_t;
-typedef std::vector<std::tuple<float, float, float, float>> boxes_t;
+typedef float coord_t;
+typedef std::vector<coord_t> coords_t;
+typedef std::tuple<coord_t, coord_t> point2d_t;
+typedef std::vector<point2d_t> points2d_t;
+typedef std::tuple<coord_t, coord_t, coord_t, coord_t> box2d_t;
+typedef std::vector<box2d_t> boxes2d_t;
 
-inline coords_t generate_coordinates(std::size_t n)
+template <typename T>
+struct random_generator
 {
-    float const max_val = static_cast<float>(n / 2);
+    typedef typename std::uniform_real_distribution<T>::result_type result_type;
 
-    std::random_device rdev;
-    std::mt19937 rgen(rdev());
-    std::uniform_real_distribution<float> rdist(-max_val, max_val);
+    T const max;
+    std::mt19937 gen;
+    std::uniform_real_distribution<T> dis;
 
+    random_generator(std::size_t n)
+        : max(static_cast<T>(n / 2))
+        , gen((unsigned int)std::chrono::system_clock::now().time_since_epoch().count())
+        , dis(-max, max)
+    {}
+    
+    result_type operator()()
+    {
+        return dis(gen);
+    }
+
+    random_generator(random_generator const&) = delete;
+    random_generator& operator=(random_generator const&) = delete;
+};
+
+inline coords_t generate_coordiantes(std::size_t n)
+{
+    random_generator<float> rg(n);
     coords_t coords;
     coords.reserve(n);
     for (decltype(n) i = 0; i < n; ++i)
     {
-        coords.emplace_back(rdist(rgen), rdist(rgen));
+        coords.emplace_back(rg());
     }
     return std::move(coords);
 }
 
-inline boxes_t generate_boxes(std::size_t n)
+inline points2d_t generate_points(std::size_t n)
 {
-    float const max_val = static_cast<float>(n / 2);
+    auto coords = generate_coordiantes(n * 2);
+    points2d_t points;
+    points.reserve(n);
+    auto const s = coords.size();
+    for (decltype(n) i = 0; i < s; i += 2)
+    {
+        points.emplace_back(coords[i], coords[i + 1]);
+    }
+    return std::move(points);
+}
 
-    std::random_device rdev;
-    std::mt19937 rgen(rdev());
-    std::uniform_real_distribution<float> rdist(-max_val, max_val);
-
-    boxes_t boxes;
+inline boxes2d_t generate_boxes(std::size_t n)
+{
+    random_generator<float> rg(n);
+    
+    boxes2d_t boxes;
     boxes.reserve(n);
     for (decltype(n) i = 0; i < n; ++i)
     {
-        auto const x = rdist(rgen);
-        auto const y = rdist(rgen);
+        auto const x = rg();
+        auto const y = rg();
         boxes.emplace_back(x - 0.5f, y - 0.5f, x + 0.5f, y + 0.5f);
     }
     return std::move(boxes);   
