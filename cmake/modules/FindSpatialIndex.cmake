@@ -37,7 +37,7 @@ if(WIN32)
 endif()
 
 find_path(SPATIALINDEX_INCLUDE_DIR
-  NAMES MVRTree.h
+  NAMES spatialindex/MVRTree.h
   HINTS
   ${OSGEO4W_ROOT_DIR}/include
   PATHS

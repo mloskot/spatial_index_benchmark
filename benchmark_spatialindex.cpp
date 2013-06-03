@@ -1,6 +1,6 @@
-#include <cstdint>
+//#include <cstdint>
 #include <cstdlib>
-#include <spatialindex/SpatialIndex.h>
+#include <SpatialIndex/SpatialIndex.h>
 using namespace std;
 using namespace SpatialIndex;
 
