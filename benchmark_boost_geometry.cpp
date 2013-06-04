@@ -18,12 +18,9 @@ int main()
 
         // Set up index
         // TODO
-        //uint32_t index_capacity = 20;
-        //uint32_t leaf_capacity = index_capacity;
-        //uint32_t dimension = 2;
         typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
         typedef bg::model::box<point_t> box_t;
-        typedef bgi::rtree<box_t, bgi::linear<16, 4> > rtree_t;
+        typedef bgi::rtree<box_t, bgi::rstar<20>> rtree_t;
         
         rtree_t rtree;
 
