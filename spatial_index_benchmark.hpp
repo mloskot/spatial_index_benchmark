@@ -167,6 +167,12 @@ inline result_info benchmark(std::string step, std::size_t iterations,
     return std::move(r);
 }
 
+template <typename Container, typename Operation>
+inline result_info benchmark(std::string step, Container const& objects, Operation op)
+{
+    return benchmark(std::move(step), 1, objects, op);
+}
+
 } // namespace sibench
 
 #endif
