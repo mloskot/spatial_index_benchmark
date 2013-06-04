@@ -7,7 +7,7 @@ int main()
 {
     try
     {
-        auto n = 10000U;
+        auto n = 100U;
         auto const boxes = sibench::generate_boxes(n);
 
         uint32_t index_capacity = 20;
@@ -18,8 +18,7 @@ int main()
         std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm, 0.7, index_capacity,
             leaf_capacity, dimension, si::RTree::RV_RSTAR, index_id));
 
-        //sibench::max_marks, sibench::max_iterations
-        auto const marks = sibench::benchmark(1, 3, boxes,
+        auto const marks = sibench::benchmark("insertions", sibench::max_iterations, boxes,
             [&rtree] (sibench::boxes2d_t const& boxes) {
 
             typedef std::array<double, 2> coord_array_t;
@@ -35,7 +34,7 @@ int main()
             }
         });
         
-        sibench::print_result(std::cout << "spatialindex: ", marks);
+        std::cout << "spatialindex: " << marks;
         return EXIT_SUCCESS;
     }
     catch (std::exception const& e)

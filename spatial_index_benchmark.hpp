@@ -8,9 +8,13 @@
 //
 #ifndef MLOSKOT_SPATIAL_INDEX_BENCHMARK_HPP_INCLUDED
 #define MLOSKOT_SPATIAL_INDEX_BENCHMARK_HPP_INCLUDED
+#ifdef _MSC_VER
+#define NOMINMAX
+#endif
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <chrono>
 #include <exception>
 #include <fstream>
@@ -31,7 +35,6 @@ namespace sibench
 //
 // Default benchmark settings
 //
-std::size_t max_marks = 2; // 10;
 std::size_t max_iterations = 1000;
 
 //
@@ -64,8 +67,9 @@ struct random_generator
         return dis(gen);
     }
 
-    random_generator(random_generator const&) = delete;
-    random_generator& operator=(random_generator const&) = delete;
+private:
+    random_generator(random_generator const&) /*= delete*/;
+    random_generator& operator=(random_generator const&) /*= delete*/;
 };
 
 inline coords_t generate_coordiantes(std::size_t n)
@@ -112,50 +116,55 @@ inline boxes2d_t generate_boxes(std::size_t n)
 //
 // Benchmark running routines
 //
-//
-// Benchmark running routines
-//
-typedef std::tuple<std::size_t, std::size_t, std::size_t, double, double> result_t;
+struct result_info
+{
+    std::string step;
+    double min;
+    double max;
+    std::size_t iterations;
+    std::size_t operations;
 
-template <typename Result>
-inline std::ostream& print_result(std::ostream& os, Result r)
+    result_info(std::string step)
+        : step(std::move(step))
+        , min(-1), max(-1), iterations(0), operations(0)
+    {}
+
+    template <typename Timer>
+    void set_mark(Timer const& t)
+    {
+        auto const m = t.elapsed();
+        min = min < 0 ? m : (std::min)(m, min);
+        max = max < 0 ? m : (std::max)(m, max);
+    }
+};
+
+inline std::ostream& operator<<(std::ostream& os, result_info const& r)
 {
     using std::get;
-    os << get<1>(r) << " iterations of " << get<2>(r) << " operations in " 
-        << get<3>(r) << " to " << get<4>(r) << " sec based on " 
-        << get<0>(r) << " benchmarks" << std::endl;
+    os << r.iterations << " iterations of " << r.operations
+       << " " << r.step << "(s) in " << r.min << " to " << r.max << " sec"
+       << std::endl;
     return os;
 }
 
-template <typename Result, typename Timer>
-inline void set_mark(Result& r, Timer const& t)
-{
-    using std::get;
-    get<3>(r) = t.elapsed();
-    get<4>(r) = (std::max)(get<3>(r), get<4>(r));
-    get<3>(r) = (std::min)(get<3>(r), get<4>(r));
-}
-
 template <typename Container, typename Operation>
-inline result_t benchmark(std::size_t marks, std::size_t iterations, Container const& objects, Operation op)
+inline result_info benchmark(std::string step, std::size_t iterations,
+    Container const& objects, Operation op)
 {
-    result_t r;
-    std::get<0>(r) = marks;
-    std::get<1>(r) = iterations;
-    std::get<2>(r) = objects.size(); // batch size per iteration
+    result_info r(step);
+    r.iterations = iterations;
+    r.operations = objects.size(); // number of single step executions
 
-    for (decltype(marks) m = 0; m < marks; ++m)
     {
         util::high_resolution_timer t;
         for (decltype(iterations) i = 0U; i < iterations; ++i)
         {
             op(objects);
         }
-        set_mark(r, t);
+        r.set_mark(t);
     }
-    return r;
+    return std::move(r);
 }
-
 
 } // namespace sibench
 
