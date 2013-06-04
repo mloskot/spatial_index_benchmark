@@ -12,6 +12,7 @@
 #include <array>
 #include <cassert>
 #include <chrono>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -84,8 +85,8 @@ inline points2d_t generate_points(std::size_t n)
     auto coords = generate_coordiantes(n * 2);
     points2d_t points;
     points.reserve(n);
-    auto const s = coords.size();
-    for (decltype(n) i = 0; i < s; i += 2)
+    auto s = coords.size();
+    for (decltype(s) i = 0; i < s; i += 2)
     {
         points.emplace_back(coords[i], coords[i + 1]);
     }
@@ -111,6 +112,50 @@ inline boxes2d_t generate_boxes(std::size_t n)
 //
 // Benchmark running routines
 //
+//
+// Benchmark running routines
+//
+typedef std::tuple<std::size_t, std::size_t, std::size_t, double, double> result_t;
+
+template <typename Result>
+inline std::ostream& print_result(std::ostream& os, Result r)
+{
+    using std::get;
+    os << get<1>(r) << " iterations of " << get<2>(r) << " operations in " 
+        << get<3>(r) << " to " << get<4>(r) << " sec based on " 
+        << get<0>(r) << " benchmarks" << std::endl;
+    return os;
+}
+
+template <typename Result, typename Timer>
+inline void set_mark(Result& r, Timer const& t)
+{
+    using std::get;
+    get<3>(r) = t.elapsed();
+    get<4>(r) = (std::max)(get<3>(r), get<4>(r));
+    get<3>(r) = (std::min)(get<3>(r), get<4>(r));
+}
+
+template <typename Container, typename Operation>
+inline result_t benchmark(std::size_t marks, std::size_t iterations, Container const& objects, Operation op)
+{
+    result_t r;
+    std::get<0>(r) = marks;
+    std::get<1>(r) = iterations;
+    std::get<2>(r) = objects.size(); // batch size per iteration
+
+    for (decltype(marks) m = 0; m < marks; ++m)
+    {
+        util::high_resolution_timer t;
+        for (decltype(iterations) i = 0U; i < iterations; ++i)
+        {
+            op(objects);
+        }
+        set_mark(r, t);
+    }
+    return r;
+}
+
 
 } // namespace sibench
 
