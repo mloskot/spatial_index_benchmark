@@ -13,8 +13,7 @@ int main()
         };
 
         // Generate random objects for indexing
-        auto n = 100U;
-        auto const boxes = sibench::generate_boxes(n);
+        auto const boxes = sibench::generate_boxes(sibench::max_objects);
 
         // Set up index
         uint32_t index_capacity = 20;
@@ -32,7 +31,8 @@ int main()
 
                     typedef std::array<double, 2> coord_array_t;
                     auto s = boxes.size();
-                    for (decltype(s) i = 0; i < s; ++i) {
+                    for (decltype(s) i = 0; i < s; ++i)
+                    {
                         auto const& box = boxes[i];
                         coord_array_t p1 = { std::get<0>(box), std::get<1>(box) };
                         coord_array_t p2 = { std::get<2>(box), std::get<3>(box) };
@@ -51,7 +51,7 @@ int main()
         {
             // TODO: benchmark() should forward query parameter, not boxes
             auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
-                [&rtree] (sibench::boxes2d_t const& boxes) {
+                [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
                     ; // TODO
             });
             print_status(marks);
