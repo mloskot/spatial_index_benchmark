@@ -8,25 +8,33 @@ int main()
 {
     try
     {
+        typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
+        typedef bg::model::box<point_t> box_t;
+        typedef bgi::rtree<box_t, bgi::rstar<100>> rtree_t;
+        
         auto print_status = [](sibench::result_info const& r)
         {
             std::cout << "boost.geometry: " << r;
         };
 
+        auto print_statistics = [](rtree_t const& i)
+        {            
+            std::cout << "boost.geometry statistics: ndata=" << i.size()
+                << std::endl;
+        };
+        
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_objects);
 
         // Set up index
         // TODO
-        typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-        typedef bg::model::box<point_t> box_t;
-        typedef bgi::rtree<box_t, bgi::rstar<20>> rtree_t;
+
         
         rtree_t rtree;
 
         // Benchmark: insert
         {
-            auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
+            auto const marks = sibench::benchmark("insert", boxes,
                 [&rtree] (sibench::boxes2d_t const& boxes) {
 
                     auto s = boxes.size();
@@ -41,6 +49,8 @@ int main()
             });
             print_status(marks);
         }
+        
+        print_statistics(rtree);
 
         // Benchmark: query
         {

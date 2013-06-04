@@ -11,22 +11,36 @@ int main()
         {
             std::cout << "spatialindex: " << r;
         };
+        
+        auto print_statistics = [](si::ISpatialIndex const& i)
+        {
+            si::IStatistics* pstat = nullptr;
+            i.getStatistics(&pstat);
+            std::unique_ptr<si::IStatistics> stat(pstat);
+            
+            std::cout << "spatialindex statistics: reads=" << stat->getReads()
+                << ", writes=" << stat->getWrites()
+                << ", nodes=" << stat->getNumberOfNodes()
+                << ", ndata=" << stat->getNumberOfData()
+                << std::endl;
+        };
 
+        
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_objects);
 
         // Set up index
-        uint32_t index_capacity = 20;
-        uint32_t leaf_capacity = index_capacity;
+        uint32_t index_capacity = 100; // defaults
+        uint32_t leaf_capacity = 100;
         uint32_t dimension = 2;
         si::id_type index_id;
         std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
-        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm, 0.7, index_capacity,
+        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm, 0.5, index_capacity,
             leaf_capacity, dimension, si::RTree::RV_RSTAR, index_id));
 
         // Benchmark: insert
         {
-            auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
+            auto const marks = sibench::benchmark("insert", boxes,
                 [&rtree] (sibench::boxes2d_t const& boxes) {
 
                     typedef std::array<double, 2> coord_array_t;
@@ -46,6 +60,8 @@ int main()
             });
             print_status(marks);
         }
+        
+        print_statistics(*rtree);
 
         // Benchmark: query
         {
@@ -56,9 +72,12 @@ int main()
             });
             print_status(marks);
         }
-
         
         return EXIT_SUCCESS;
+    }
+    catch (Tools::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
     }
     catch (std::exception const& e)
     {
