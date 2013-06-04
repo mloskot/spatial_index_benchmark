@@ -50,6 +50,7 @@ function get_git_branch
 PREFIX=""
 SRC_DIR="$PWD"
 BUILD_DIR="$PWD/_build"
+CMAKE_OPTIONS=""
 
 for option
 do
@@ -67,13 +68,16 @@ do
     -build-dir=* | --build-dir=*)
       BUILD_DIR=`expr "x$option" : "x-*build-dir=\(.*\)"`
       ;;
+    -D*)
+        CMAKE_OPTION=`expr "x$option" : "x\(-D.*\)"`
+        CMAKE_OPTIONS="${CMAKE_OPTIONS} ${CMAKE_OPTION}"
+      ;;
     -*)
       err "unrecognized option: $option"
       ;; 
 
     esac
 done
-
 if [ "x$show_help" = "xyes" ]; then
   cat <<EOF
 \`./configure.sh' runs CMake to configure build
@@ -112,5 +116,6 @@ fi
 
 # Run cmake
 msg "Running CMake in build directoru '$BUILD_DIR'"
-(cd "$BUILD_DIR" && exec cmake "$SRC_DIR")
+msg "CMake options: ${CMAKE_OPTIONS}"
+(cd "$BUILD_DIR" && exec cmake $CMAKE_OPTIONS "$SRC_DIR")
 
