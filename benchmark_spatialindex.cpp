@@ -7,7 +7,7 @@ int main()
 {
     try
     {
-        auto n = 1000U;
+        auto n = 10000U;
         auto const boxes = sibench::generate_boxes(n);
 
         uint32_t index_capacity = 20;
@@ -15,27 +15,36 @@ int main()
         uint32_t dimension = 2;
         si::id_type index_id;
         std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
-        std::unique_ptr<si::ISpatialIndex> si(si::RTree::createNewRTree(*sm, 0.7, index_capacity,
+        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm, 0.7, index_capacity,
             leaf_capacity, dimension, si::RTree::RV_RSTAR, index_id));
 
-        typedef std::array<double, 2> coord_array_t;
-        
-        auto const s = boxes.size();
-        for (std::size_t i = 0; i < s; ++i)
-        {
-            auto const& box = boxes[i];
-            coord_array_t p1 = { std::get<0>(box), std::get<1>(box) };
-            coord_array_t p2 = { std::get<2>(box), std::get<3>(box) };
+        //sibench::max_marks, sibench::max_iterations
+        auto const marks = sibench::benchmark(1, 3, boxes,
+            [&rtree] (sibench::boxes2d_t const& boxes) {
 
-            si::id_type item_id(i);
-            si::Region region(si::Point(p1.data(), p1.size()), si::Point(p2.data(), p2.size()));
-            si->insertData(0, nullptr, region, item_id);
-        }
+            typedef std::array<double, 2> coord_array_t;
+            auto s = boxes.size();
+            for (decltype(s) i = 0; i < s; ++i) {
+                auto const& box = boxes[i];
+                coord_array_t p1 = { std::get<0>(box), std::get<1>(box) };
+                coord_array_t p2 = { std::get<2>(box), std::get<3>(box) };
+
+                si::id_type item_id(i);
+                si::Region region(si::Point(p1.data(), p1.size()), si::Point(p2.data(), p2.size()));
+                rtree->insertData(0, nullptr, region, item_id);
+            }
+        });
         
+        sibench::print_result(std::cout << "spatialindex: ", marks);
         return EXIT_SUCCESS;
     }
-    catch ( ... )
+    catch (std::exception const& e)
     {
+        std::cerr << e.what() << std::endl;
+    }
+    catch (...)
+    {
+        std::cerr << "unknown error" << std::endl;
     }
     return EXIT_FAILURE;
 }
