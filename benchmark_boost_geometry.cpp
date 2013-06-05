@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013 Mateusz Loskot <mateusz@loskot.net>
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy 
+// at http://www.boost.org/LICENSE_1_0.txt)
+//
+#if defined(_MSC_VER) && (_MSC_VER == 1700)
+#define _VARIADIC_MAX 6
+#endif
 #define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include "spatial_index_benchmark.hpp"
 #include <boost/geometry/index/rtree.hpp>
@@ -23,7 +33,7 @@ int main()
         auto print_statistics = [](rtree_t const& i)
         {            
             auto const stats = bgi::statistics(i);
-            std::cout << "boost.geometry statistics: levels=" << get<0>(stats)
+            std::cout << "boost.geometry statistics: levels=" << std::get<0>(stats)
                     << ", nodes=" << get<1>(stats)
                     << ", leaves=" << get<2>(stats)
                     << ", values=" << get<3>(stats)
