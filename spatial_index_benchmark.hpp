@@ -39,8 +39,9 @@ namespace sibench
 //
 // Default benchmark settings
 //
-std::size_t max_objects = 1000000;
-std::size_t max_iterations = 1000;
+std::size_t const max_iterations = 1000000;
+std::size_t const max_insertions = max_iterations;
+std::size_t const max_queries =  std::size_t(max_insertions * 0.1);
 
 enum class rtree_variant { rstar, linear, quadratic };
 
@@ -144,12 +145,11 @@ struct result_info
     std::string step;
     double min;
     double max;
-    std::size_t iterations;
-    std::size_t operations;
+        std::size_t iterations;
 
     result_info(std::string step)
         : step(std::move(step))
-        , min(-1), max(-1), iterations(0), operations(0)
+        , min(-1), max(-1), iterations(0)
     {}
 
     template <typename Timer>
@@ -163,16 +163,21 @@ struct result_info
 
 inline std::ostream& operator<<(std::ostream& os, result_info const& r)
 {
-    os << r.iterations << " iterations of " << r.operations
-       << " " << r.step << "(s) in " << r.min << " to " << r.max << " sec"
+    os << r.step << " " << r.iterations << " in " << r.min << " to " << r.max << " sec"
        << std::endl;
     return os;
 }
 
-std::ostream& print_result(std::ostream& os, std::string const& lib, result_info const& r)
+inline std::ostream& print_result(std::ostream& os, std::string const& lib, result_info const& r)
 {
     os << std::setw(12) << std::setfill(' ') << std::left
        << sibench::get_banner(lib) << ": " << r;
+    return os;
+}
+
+inline std::ostream& print_query_count(std::ostream& os, std::string const& lib, size_t i)
+{
+    os << sibench::get_banner(lib) << " stats: found=" << i << std::endl;
     return os;
 }
 
@@ -182,23 +187,12 @@ inline result_info benchmark(std::string step, std::size_t iterations,
 {
     result_info r(step);
     r.iterations = iterations;
-    r.operations = objects.size(); // number of single step executions
-
     {
         util::high_resolution_timer t;
-        for (decltype(iterations) i = 0U; i < iterations; ++i)
-        {
-            op(objects);
-        }
+        op(objects, iterations);
         r.set_mark(t);
     }
     return std::move(r);
-}
-
-template <typename Container, typename Operation>
-inline result_info benchmark(std::string step, Container const& objects, Operation op)
-{
-    return benchmark(std::move(step), 1, objects, op);
 }
 
 } // namespace sibench
