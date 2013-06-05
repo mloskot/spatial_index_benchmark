@@ -38,8 +38,6 @@ else()
 endif()
 
 # Dependencies
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
 find_package(Boost 1.54)
 if (NOT Boost_FOUND)
   message(FATAL_ERROR "Cannot find Boost")
