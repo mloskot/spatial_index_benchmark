@@ -10,40 +10,57 @@
 using namespace std;
 namespace si = SpatialIndex;
 
+namespace {
+void print_statistics(std::ostream& os, std::string const& lib, si::ISpatialIndex const& i)
+{
+    si::IStatistics* pstat = nullptr;
+    i.getStatistics(&pstat);
+    std::unique_ptr<si::IStatistics> stat(pstat);
+
+    os << sibench::get_banner(lib)
+       << " stats: reads=" << stat->getReads()
+       << ", writes=" << stat->getWrites()
+       << ", nodes=" << stat->getNumberOfNodes()
+       << ", ndata=" << stat->getNumberOfData()
+       << std::endl;
+}
+
+si::RTree::RTreeVariant get_variant()
+{
+    auto const rv = sibench::get_rtree_variant().first;
+    switch(rv)
+    {
+    case sibench::rtree_variant::linear:
+        return si::RTree::RV_LINEAR;
+    case sibench::rtree_variant::quadratic:
+        return si::RTree::RV_QUADRATIC;
+    case sibench::rtree_variant::rstar:
+        return si::RTree::RV_RSTAR;
+    default:
+        throw std::runtime_error("unknown rtree variant");
+    };
+}
+}
+
 int main()
 {
     try
     {
-        auto print_status = [](sibench::result_info const& r)
-        {
-            std::cout << "spatialindex: " << r;
-        };
-        
-        auto print_statistics = [](si::ISpatialIndex const& i)
-        {
-            si::IStatistics* pstat = nullptr;
-            i.getStatistics(&pstat);
-            std::unique_ptr<si::IStatistics> stat(pstat);
-            
-            std::cout << "spatialindex statistics: reads=" << stat->getReads()
-                << ", writes=" << stat->getWrites()
-                << ", nodes=" << stat->getNumberOfNodes()
-                << ", ndata=" << stat->getNumberOfData()
-                << std::endl;
-        };
-
+        std::string const lib("lsi");
         
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_objects);
 
         // Set up index
-        uint32_t index_capacity = 100; // defaults
-        uint32_t leaf_capacity = 100;
-        uint32_t dimension = 2;
+        si::RTree::RTreeVariant const variant = get_variant();
+        uint32_t const index_capacity = 100; // default: 100
+        uint32_t const leaf_capacity = 100; // default: 100
+        double const fill_factor = 0.5; // default: 0.7 // TODO: does it mean index_capacity * fill_factor?
+        uint32_t const dimension = 2;
         si::id_type index_id;
         std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
-        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm, 0.5, index_capacity,
-            leaf_capacity, dimension, si::RTree::RV_RSTAR, index_id));
+        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm,
+            fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
 
         // Benchmark: insert
         {
@@ -65,20 +82,20 @@ int main()
                         rtree->insertData(0, nullptr, region, item_id);
                     }
             });
-            print_status(marks);
+            sibench::print_result(std::cout, lib, marks);
         }
         
-        print_statistics(*rtree);
+        print_statistics(std::cout, lib, *rtree);
 
         // Benchmark: query
-        {
-            // TODO: benchmark() should forward query parameter, not boxes
-            auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
-                [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
-                    ; // TODO
-            });
-            print_status(marks);
-        }
+        //{
+        //    // TODO: benchmark() should forward query parameter, not boxes
+        //    auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
+        //        [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
+        //            ; // TODO
+        //    });
+        //    sibench::print_result(std::cout, lib, marks);
+        //}
         
         return EXIT_SUCCESS;
     }

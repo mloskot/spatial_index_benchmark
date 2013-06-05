@@ -5,50 +5,74 @@
 // (See accompanying file LICENSE_1_0.txt or copy 
 // at http://www.boost.org/LICENSE_1_0.txt)
 //
-#if defined(_MSC_VER) && (_MSC_VER == 1700)
-#define _VARIADIC_MAX 6
-#endif
 #define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include "spatial_index_benchmark.hpp"
 #include <boost/geometry/index/rtree.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include <boost/geometry/index/detail/rtree/visitors/statistics.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
+#endif
 using namespace std;
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
+
+template <typename T>
+void print_statistics(std::ostream& os, std::string const& lib, T const& i)
+{
+    auto const stats = bgi::statistics(i);
+    os << sibench::get_banner(lib)
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
+       << " stats: levels=" << std::get<0>(stats)
+       << ", nodes=" << get<1>(stats)
+       << ", leaves=" << get<2>(stats)
+       << ", values=" << get<3>(stats)
+       << ", values_min=" << get<4>(stats)
+       << ", values_max=" << get<5>(stats)
+#else
+       << "no statistics"
+#endif
+       << std::endl;
+}
 
 int main()
 {
     try
     {
-        typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-        typedef bg::model::box<point_t> box_t;
-        typedef bgi::rtree<box_t, bgi::rstar<100>> rtree_t;
-        
-        auto print_status = [](sibench::result_info const& r)
-        {
-            std::cout << "boost.geometry: " << r;
-        };
-
-        auto print_statistics = [](rtree_t const& i)
-        {            
-            auto const stats = bgi::statistics(i);
-            std::cout << "boost.geometry statistics: levels=" << std::get<0>(stats)
-                    << ", nodes=" << get<1>(stats)
-                    << ", leaves=" << get<2>(stats)
-                    << ", values=" << get<3>(stats)
-                    << ", values_min=" << get<4>(stats)
-                    << ", values_max=" << get<5>(stats)
-                    << std::endl;
-        };
+#ifdef BGI_DYNAMIC_RTREE
+        std::string const lib("bgi_rt");
+#else
+        std::string const lib("bgi");
+#endif
         
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_objects);
 
         // Set up index
-        // TODO
-        
-        rtree_t rtree;
+        std::size_t const max_capacity = 100;
+        std::size_t const min_capacity =  50; // default: max * 0.3
+
+        typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
+        typedef bg::model::box<point_t> box_t;
+#ifdef BGI_DYNAMIC_RTREE
+    #ifdef RTREE_VARIANT_LINEAR
+        typedef bgi::dynamic_linear rtree_parameters_t;
+    #elif RTREE_VARIANT_QUADRATIC
+        typedef bgi::dynamic_quadratic rtree_parameters_t;
+    #else
+        typedef bgi::dynamic_rstar rtree_parameters_t;
+    #endif
+    typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
+    rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
+#else
+    #ifdef RTREE_VARIANT_LINEAR
+        typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
+    #elif RTREE_VARIANT_QUADRATIC
+        typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
+    #else
+        typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;
+    #endif    
+    rtree_t rtree;
+#endif
 
         // Benchmark: insert
         {
@@ -65,22 +89,21 @@ int main()
                         rtree.insert(region);
                     }
             });
-            print_status(marks);
+            sibench::print_result(std::cout, lib, marks);
         }
-        
-        //std::cout <<  rtree;
-        
-        print_statistics(rtree);
 
-        // Benchmark: query
-        {
-            // TODO: benchmark() should forward query parameter, not boxes
-            auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
-                [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
-                    ; // TODO
-            });
-            print_status(marks);
-        }
+        //std::cout <<  rtree;
+        print_statistics(std::cout, lib, rtree);
+
+        //// Benchmark: query
+        //{
+        //    // TODO: benchmark() should forward query parameter, not boxes
+        //    auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
+        //        [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
+        //            ; // TODO
+        //    });
+        //    print_status(marks);
+        //}
 
 
         return EXIT_SUCCESS;
