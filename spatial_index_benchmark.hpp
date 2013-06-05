@@ -9,8 +9,11 @@
 #ifndef MLOSKOT_SPATIAL_INDEX_BENCHMARK_HPP_INCLUDED
 #define MLOSKOT_SPATIAL_INDEX_BENCHMARK_HPP_INCLUDED
 #ifdef _MSC_VER
-#define NOMINMAX
+#if (_MSC_VER == 1700)
+#define _VARIADIC_MAX 6
 #endif
+#define NOMINMAX
+#endif // _MSC_VER
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -19,6 +22,7 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <memory>
 #include <random>
 #include <sstream>
@@ -37,6 +41,24 @@ namespace sibench
 //
 std::size_t max_objects = 1000000;
 std::size_t max_iterations = 1000;
+
+enum class rtree_variant { rstar, linear, quadratic };
+
+inline std::pair<rtree_variant, std::string> get_rtree_variant()
+{
+#ifdef RTREE_VARIANT_LINEAR
+    return std::make_pair(rtree_variant::linear, "L");
+#elif RTREE_VARIANT_QUADRATIC
+    return std::make_pair(rtree_variant::quadratic, "Q");
+#else
+    return std::make_pair(rtree_variant::rstar, "R");
+#endif
+}
+
+inline std::string get_banner(std::string const& lib)
+{
+    return lib + "(" + get_rtree_variant().second + ")";
+}
 
 //
 // Generators of random objects
@@ -141,10 +163,16 @@ struct result_info
 
 inline std::ostream& operator<<(std::ostream& os, result_info const& r)
 {
-    using std::get;
     os << r.iterations << " iterations of " << r.operations
        << " " << r.step << "(s) in " << r.min << " to " << r.max << " sec"
        << std::endl;
+    return os;
+}
+
+std::ostream& print_result(std::ostream& os, std::string const& lib, result_info const& r)
+{
+    os << std::setw(12) << std::setfill(' ') << std::left
+       << sibench::get_banner(lib) << ": " << r;
     return os;
 }
 
