@@ -44,6 +44,7 @@ find_package(Boost 1.54)
 if (NOT Boost_FOUND)
   message(FATAL_ERROR "Cannot find Boost")
 endif()
+include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(SpatialIndex 1.7.0)
 if (NOT SPATIALINDEX_FOUND)
@@ -54,17 +55,69 @@ set(SRC_COMMON
     spatial_index_benchmark.hpp
     high_resolution_timer.hpp)
 
+macro(msg T)
+  message(STATUS "Configuring ${T}")
+endmacro()
+
 # benchmark: libspatialindex 
-set(TARGET_BSI benchmark_spatialindex)
-message(STATUS "Configuring ${TARGET_BSI}")
+set(BSI benchmark_lsi)
+## Linear
+set(TARGET_BSI ${BSI}_linear)
+msg(${TARGET_BSI})
 add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
 target_link_libraries(${TARGET_BSI} ${SPATIALINDEX_LIBRARY})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY
-  INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+## Quadratic
+set(TARGET_BSI ${BSI}_quadratic)
+msg(${TARGET_BSI})
+add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
+target_link_libraries(${TARGET_BSI} ${SPATIALINDEX_LIBRARY})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
+## RStar
+set(TARGET_BSI ${BSI}_rstar)
+msg(${TARGET_BSI})
+add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
+target_link_libraries(${TARGET_BSI} ${SPATIALINDEX_LIBRARY})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
+set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
 
 # benchmark: Boost.Geometry
-set(TARGET_BGI benchmark_boost_geometry)
-message(STATUS "Configuring ${TARGET_BGI}")
+set(BGI benchmark_bgi)
+## Linear
+### compile-time parameters
+set(TARGET_BGI ${BGI}_linear)
+msg(${TARGET_BGI})
 add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY
-  INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+### run-time parameters
+set(TARGET_BGI ${TARGET_BGI}_rt)
+msg(${TARGET_BGI})
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
+## Quadratic
+### compile-time parameters
+set(TARGET_BGI ${BGI}_quadratic)
+msg(${TARGET_BGI})
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
+### run-time parameters
+set(TARGET_BGI ${TARGET_BGI}_rt)
+msg(${TARGET_BGI})
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
+## RStar
+### compile-time parameters
+set(TARGET_BGI ${BGI}_rstar)
+msg(${TARGET_BGI})
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
+### run-time parameters
+set(TARGET_BGI ${TARGET_BGI}_rt)
+msg(${TARGET_BGI})
+add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
+set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
