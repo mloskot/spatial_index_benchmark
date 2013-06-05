@@ -1,5 +1,8 @@
+#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include "spatial_index_benchmark.hpp"
 #include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/statistics.hpp>
 using namespace std;
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
@@ -19,8 +22,14 @@ int main()
 
         auto print_statistics = [](rtree_t const& i)
         {            
-            std::cout << "boost.geometry statistics: ndata=" << i.size()
-                << std::endl;
+            auto const stats = bgi::statistics(i);
+            std::cout << "boost.geometry statistics: levels=" << get<0>(stats)
+                    << ", nodes=" << get<1>(stats)
+                    << ", leaves=" << get<2>(stats)
+                    << ", values=" << get<3>(stats)
+                    << ", values_min=" << get<4>(stats)
+                    << ", values_max=" << get<5>(stats)
+                    << std::endl;
         };
         
         // Generate random objects for indexing
@@ -28,7 +37,6 @@ int main()
 
         // Set up index
         // TODO
-
         
         rtree_t rtree;
 
@@ -49,6 +57,8 @@ int main()
             });
             print_status(marks);
         }
+        
+        //std::cout <<  rtree;
         
         print_statistics(rtree);
 

@@ -35,7 +35,7 @@ namespace sibench
 //
 // Default benchmark settings
 //
-std::size_t max_objects = 1000;
+std::size_t max_objects = 1000000;
 std::size_t max_iterations = 1000;
 
 //
