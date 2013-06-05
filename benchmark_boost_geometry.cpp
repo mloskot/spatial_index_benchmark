@@ -45,7 +45,7 @@ int main()
 #endif
         
         // Generate random objects for indexing
-        auto const boxes = sibench::generate_boxes(sibench::max_objects);
+        auto const boxes = sibench::generate_boxes(sibench::max_insertions);
 
         // Set up index
         std::size_t const max_capacity = 100;
@@ -76,35 +76,49 @@ int main()
 
         // Benchmark: insert
         {
-            auto const marks = sibench::benchmark("insert", boxes,
-                [&rtree] (sibench::boxes2d_t const& boxes) {
-
-                    auto s = boxes.size();
-                    for (decltype(s) i = 0; i < s; ++i)
-                    {
-                        auto const& box = boxes[i];
-                        point_t p1(std::get<0>(box), std::get<1>(box));
-                        point_t p2(std::get<2>(box), std::get<3>(box));
-                        box_t region(p1, p2);
-                        rtree.insert(region);
-                    }
+            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            {
+                auto const s = iterations < boxes.size() ? iterations : boxes.size();
+                for (size_t i = 0; i < s; ++i)
+                {
+                    auto const& box = boxes[i];
+                    point_t p1(std::get<0>(box), std::get<1>(box));
+                    point_t p2(std::get<2>(box), std::get<3>(box));
+                    box_t region(p1, p2);
+                    rtree.insert(region);
+                }
             });
             sibench::print_result(std::cout, lib, marks);
+        
+            //std::cout <<  rtree;
+            print_statistics(std::cout, lib, rtree);
         }
 
-        //std::cout <<  rtree;
-        print_statistics(std::cout, lib, rtree);
+        // Benchmark: query
+        {
+            size_t query_found = 0;
 
-        //// Benchmark: query
-        //{
-        //    // TODO: benchmark() should forward query parameter, not boxes
-        //    auto const marks = sibench::benchmark("insert", sibench::max_iterations, boxes,
-        //        [&rtree] (sibench::boxes2d_t const& /*boxes*/) {
-        //            ; // TODO
-        //    });
-        //    print_status(marks);
-        //}
-
+            auto const marks = sibench::benchmark("query", sibench::max_queries, boxes,
+                [&rtree, &query_found] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            {
+                std::vector<box_t> result;
+                result.reserve(iterations);
+                
+                for (size_t i = 0; i < iterations; ++i)
+                {
+                    result.clear();
+                    auto const& box = boxes[i];
+                    point_t p1(std::get<0>(box) - 10, std::get<1>(box) - 10);
+                    point_t p2(std::get<2>(box) + 10, std::get<3>(box) + 10);
+                    box_t region(p1, p2);
+                    rtree.query(bgi::intersects(region), std::back_inserter(result));
+                    query_found += result.size();
+                }
+            });
+            sibench::print_result(std::cout, lib, marks);
+            sibench::print_query_count(std::cout, lib, query_found);
+        }
 
         return EXIT_SUCCESS;
     }
