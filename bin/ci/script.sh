@@ -1,7 +1,7 @@
 #!/bin/bash
 # Builds and runs spatial_index_benchmark
 source ./bin/ci/common.sh
-BOOST_PREFIX=${PWD}
+pwd && ls
 mkdir -p _build
 cd _build
 echo "$(tmstamp) *** script::cmake starting $(date) ***"
@@ -13,7 +13,7 @@ echo "$(tmstamp) *** script::cmake finished $(date) ***"
 
 echo "$(tmstamp) *** script::make -j ${NUMTHREADS} $(date) ***"
 #cmake --build .
-make
+make -j ${NUMTHREADS}
 echo "$(tmstamp) *** script::make finished $(date) ***"
 
 echo "$(tmstamp) *** script::benchmark starting $(date) ***"
