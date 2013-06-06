@@ -1,7 +1,8 @@
 #!/bin/bash
 # Builds and runs spatial_index_benchmark
 source ./bin/ci/common.sh
-pwd && ls
+pwd
+echo "BOOST_PREFIX=${BOOST_PREFIX}"
 mkdir -p _build
 cd _build
 echo "$(tmstamp) *** script::cmake starting $(date) ***"

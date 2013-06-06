@@ -1,7 +1,8 @@
 #!/bin/bash
 # Installs requirements for spatial_index_benchmark
 source ./bin/ci/common.sh
-pwd && ls
+pwd
+echo "BOOST_PREFIX=${BOOST_PREFIX}"
 echo "$(tmstamp) *** before_install::apt-get starting $(date) ***"
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 16126D3A3E5C1192
 sudo apt-get update -qq
@@ -11,5 +12,7 @@ echo "$(tmstamp) *** before_install::apt-get finished $(date) ***"
 echo "$(tmstamp) *** before_install::svn co boost starting $(date) ***"
 # Boost 1.55+ or trunk is required
 mkdir -p ${BOOST_PREFIX}
-svn checkout http://svn.boost.org/svn/boost/trunk/boost ${BOOST_PREFIX}/boost
+svn checkout http://svn.boost.org/svn/boost/trunk/boost \
+    ${BOOST_PREFIX}/boost \
+    > /dev/null
 echo "$(tmstamp) *** before_install::svn co boost finished  $(date) ***"
