@@ -7,6 +7,8 @@ List of currently measured libraries:
 * [Boost.Geometry](http://www.boost.org/libs/geometry/)
 * [libspatialindex](http://libspatialindex.github.io)
 
+[![Build Status](https://travis-ci.org/mloskot/spatial_index_benchmark.png?branch=master)](https://travis-ci.org/mloskot/spatial_index_benchmark)
+
 Requirements
 ------------
 
