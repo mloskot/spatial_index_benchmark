@@ -1,5 +1,6 @@
 #!/bin/bash
 # Installs requirements for spatial_index_benchmark
+source ./bin/ci/common.sh
 echo "$(tmstamp) *** before_install::apt-get starting $(date) ***"
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 16126D3A3E5C1192
 sudo apt-get update -qq
