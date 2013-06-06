@@ -10,6 +10,7 @@ List of currently measured libraries:
 Requirements
 ------------
 
+* C++11 compiler
 * CMake
 * Boost headers from its SVN trunk or Boost 1.53+ with copy of [statistics.hpp](https://gist.github.com/mloskot/5715329)
 added to trunk in [r84649](https://svn.boost.org/trac/boost/changeset/84649).
