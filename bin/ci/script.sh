@@ -8,7 +8,7 @@ cd _build
 echo "$(tmstamp) *** script::cmake starting $(date) ***"
 cmake \
 	-DCMAKE_VERBOSE_MAKEFILE=ON \
-    -DBOOST_DIR=${BOOST_PREFIX} \
+    -DBOOST_ROOT=${BOOST_PREFIX} \
 	..
 echo "$(tmstamp) *** script::cmake finished $(date) ***"
 

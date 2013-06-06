@@ -12,7 +12,9 @@ echo "$(tmstamp) *** before_install::apt-get finished $(date) ***"
 echo "$(tmstamp) *** before_install::svn co boost starting $(date) ***"
 # Boost 1.55+ or trunk is required
 mkdir -p ${BOOST_PREFIX}
+echo -n "Running svn checkout http://svn.boost.org/svn/boost/trunk/boost..."
 svn checkout http://svn.boost.org/svn/boost/trunk/boost \
     ${BOOST_PREFIX}/boost \
     > /dev/null
+echo "done"
 echo "$(tmstamp) *** before_install::svn co boost finished  $(date) ***"
