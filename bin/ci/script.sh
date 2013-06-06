@@ -5,18 +5,9 @@ pwd
 echo "BOOST_PREFIX=${BOOST_PREFIX}"
 mkdir -p _build
 cd _build
-echo "$(tmstamp) *** script::cmake starting $(date) ***"
 cmake \
 	-DCMAKE_VERBOSE_MAKEFILE=ON \
     -DBOOST_ROOT=${BOOST_PREFIX} \
 	..
-echo "$(tmstamp) *** script::cmake finished $(date) ***"
-
-echo "$(tmstamp) *** script::make -j ${NUMTHREADS} $(date) ***"
 #cmake --build .
 make -j ${NUMTHREADS}
-echo "$(tmstamp) *** script::make finished $(date) ***"
-
-echo "$(tmstamp) *** script::benchmark starting $(date) ***"
-ls
-echo "$(tmstamp) *** script::benchmark finished $(date) ***"
