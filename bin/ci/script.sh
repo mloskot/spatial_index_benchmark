@@ -5,6 +5,7 @@ mkdir -p _build
 cd _build
 echo "Calling cmake -DBOOST_PREFIX=${BOOST_PREFIX}"
 cmake \
+    -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_VERBOSE_MAKEFILE=ON \
     -DBOOST_ROOT=${BOOST_PREFIX} \
 	..
