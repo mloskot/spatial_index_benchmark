@@ -12,3 +12,4 @@ if [[ -f /sys/devices/system/cpu/online ]]; then
 	NUMTHREADS=$(( ( $(cut -f 2 -d '-' /sys/devices/system/cpu/online) + 1 ) * 15 / 10  ))
 fi
 export NUMTHREADS
+export BOOST_PREFIX="${TRAVIS_BUILD_DIR}/trunk"
