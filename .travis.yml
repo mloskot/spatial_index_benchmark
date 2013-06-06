@@ -1,0 +1,21 @@
+# .travis.yml
+# Configure Travis CI service for
+# http://github.com/mloskot/spatial_index_benchmark
+language: cpp
+
+# Testing against two compilers will create (at least) 2 rows in build matrix
+# http://about.travis-ci.org/docs/user/languages/cpp/
+compiler:
+  - g++
+  - clang
+
+before_install: ./bin/ci/before_install.sh
+script: ./bin/ci/script.sh
+
+notifications:
+  email:
+    recipients:
+      - mateusz@loskot.net
+  on_success: change # [always|never|change] # default: change
+  on_failure: always # [always|never|change] # default: always
+
