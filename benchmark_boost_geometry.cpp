@@ -21,12 +21,12 @@ void print_statistics(std::ostream& os, std::string const& lib, T const& i)
     using bgi::detail::rtree::utilities::statistics;
     auto const s = statistics(i);
     os << sibench::get_banner(lib)
-       << " stats: levels=" << s.get<0>()
-       << ", nodes=" << s.get<1>()
-       << ", leaves=" << s.get<2>()
-       << ", values=" << s.get<3>()
-       << ", values_min=" << s.get<4>()
-       << ", values_max=" << s.get<5>()
+       << " stats: levels=" << boost::get<0>(s)
+       << ", nodes=" << boost::get<1>(s)
+       << ", leaves=" << boost::get<2>(s)
+       << ", values=" << boost::get<3>(s)
+       << ", values_min=" << boost::get<4>(s)
+       << ", values_max=" << boost::get<5>(s)
        << std::endl;
 }
 
