@@ -14,6 +14,15 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 enable_testing()
 
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Compiler flags
 if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -66,71 +75,38 @@ endif()
 ################################################################################
 # benchmark: libspatialindex 
 set(BSI benchmark_lsi)
-## Linear
-set(TARGET_BSI ${BSI}_linear)
-msg(${TARGET_BSI})
-add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
-target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
-add_test(NAME ${TARGET_BSI} CONFIGURATIONS Release COMMAND ${TARGET_BSI})
-## Quadratic
-set(TARGET_BSI ${BSI}_quadratic)
-msg(${TARGET_BSI})
-add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
-target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
-## RStar
-set(TARGET_BSI ${BSI}_rstar)
-msg(${TARGET_BSI})
-add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
-target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
-set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
+
+foreach(variant linear quadratic rstar)
+  set(TARGET_BSI ${BSI}_${variant})
+  msg(${TARGET_BSI})
+  add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
+  target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
+  set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
+  set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+  add_test(NAME ${TARGET_BSI} CONFIGURATIONS Release COMMAND ${TARGET_BSI})
+endforeach()
 
 ################################################################################
 # benchmark: Boost.Geometry
 set(BGI benchmark_bgi)
-## Linear
-### compile-time parameters
-set(TARGET_BGI ${BGI}_linear)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
-### run-time parameters
-set(TARGET_BGI ${TARGET_BGI}_rt)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
-## Quadratic
-### compile-time parameters
-set(TARGET_BGI ${BGI}_quadratic)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
-### run-time parameters
-set(TARGET_BGI ${TARGET_BGI}_rt)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_QUADRATIC=1)
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
-## RStar
-### compile-time parameters
-set(TARGET_BGI ${BGI}_rstar)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
-### run-time parameters
-set(TARGET_BGI ${TARGET_BGI}_rt)
-msg(${TARGET_BGI})
-add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
-set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
+
+## compile-time parameters
+foreach(variant linear quadratic rstar)
+  set(TARGET_BGI ${BGI}_${variant})
+  msg(${TARGET_BGI})
+  add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+  target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
+  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+  add_test(NAME ${TARGET_BGI} CONFIGURATIONS Release COMMAND ${TARGET_BGI})
+endforeach()
+
+## run-time parameters
+foreach(variant linear quadratic rstar)
+  set(TARGET_BGI ${BGI}_${variant}_rt)
+  msg(${TARGET_BGI})
+  add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+  target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
+  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS BGI_DYNAMIC_RTREE=1)
+  add_test(NAME ${TARGET_BGI} CONFIGURATIONS Release COMMAND ${TARGET_BGI})
+endforeach()
