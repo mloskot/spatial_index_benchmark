@@ -119,5 +119,5 @@ msg "Running CMake in build directoru '$BUILD_DIR'"
 msg "CMake options:"
 msg " ${CMAKE_OPTIONS}"
 
-(cd $BUILD_DIR; cmake $CMAKE_OPTIONS "$SRC_DIR")
+(cd $BUILD_DIR; cmake -DCMAKE_INSTALL_PREFIX:PATH="$PREFIX" $CMAKE_OPTIONS "$SRC_DIR")
 
