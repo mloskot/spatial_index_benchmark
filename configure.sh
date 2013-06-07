@@ -108,7 +108,7 @@ msg_done $BRANCH
 
 # Create build directory
 if [ ! -d "$BUILD_DIR" ]; then
-    msg_line "Creating build directoru in '$BUILD_DIR'"
+    msg_line "Creating build directory in '$BUILD_DIR'"
     mkdir -p $BUILD_DIR
     msg_done
 fi
