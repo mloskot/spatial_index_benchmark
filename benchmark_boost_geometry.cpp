@@ -5,13 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy 
 // at http://www.boost.org/LICENSE_1_0.txt)
 //
-#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include "spatial_index_benchmark.hpp"
 #include <boost/geometry/index/rtree.hpp>
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
-#include <boost/geometry/index/detail/rtree/visitors/statistics.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
-#endif
+// enable internal debugging utilities
+#include <boost/geometry/index/detail/rtree/utilities/statistics.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/print.hpp>
+#include <boost/tuple/tuple.hpp>
 using namespace std;
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
@@ -19,18 +18,15 @@ namespace bgi = boost::geometry::index;
 template <typename T>
 void print_statistics(std::ostream& os, std::string const& lib, T const& i)
 {
-    auto const stats = bgi::statistics(i);
+    using bgi::detail::rtree::utilities::statistics;
+    auto const s = statistics(i);
     os << sibench::get_banner(lib)
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
-       << " stats: levels=" << std::get<0>(stats)
-       << ", nodes=" << get<1>(stats)
-       << ", leaves=" << get<2>(stats)
-       << ", values=" << get<3>(stats)
-       << ", values_min=" << get<4>(stats)
-       << ", values_max=" << get<5>(stats)
-#else
-       << "no statistics"
-#endif
+       << " stats: levels=" << s.get<0>()
+       << ", nodes=" << s.get<1>()
+       << ", leaves=" << s.get<2>()
+       << ", values=" << s.get<3>()
+       << ", values_min=" << s.get<4>()
+       << ", values_max=" << s.get<5>()
        << std::endl;
 }
 
