@@ -10,6 +10,8 @@
 using namespace std;
 namespace si = SpatialIndex;
 
+#define SIBENCH_RTREE_LOAD_BULK
+
 namespace {
 void print_statistics(std::ostream& os, std::string const& lib, si::ISpatialIndex const& i)
 {
@@ -61,7 +63,7 @@ struct query_visitor : public si::IVisitor
         uint8_t* pd = 0;
         uint32_t size = 0;
         d.getData(size, &pd);
-        std::unique_ptr<uint8_t[]> data(pd);
+        //std::unique_ptr<uint8_t[]> data(pd);
         // use data
         //std::string str(reinterpret_cast<char*>(pd));
 
@@ -81,7 +83,73 @@ struct query_visitor : public si::IVisitor
     size_t m_io_found;
 };
 
+#ifdef SIBENCH_RTREE_LOAD_BULK
+struct data_stream : public si::IDataStream
+{
+    data_stream(sibench::boxes2d_t const& boxes)
+        : boxes(boxes), next(0), pdnext(nullptr)
+    {
+        get_next();
+    }
+    ~data_stream()
+    {
+        delete pdnext;
+    }
+    
+    si::IData* getNext()
+    {
+        if (!pdnext) return 0;
+        si::RTree::Data* pcurrent = pdnext;
+        get_next();
+        return pcurrent;
+    }
+
+    bool hasNext()
+    {
+        return pdnext != nullptr;
+    }
+
+    uint32_t size()
+    {
+        return boxes.size();
+    }
+
+    void rewind()
+    {
+        if (pdnext)
+        {
+            delete pdnext;
+            pdnext = nullptr;
+        }
+        next = 0;
+    }
+
+    void get_next()
+    {
+        pdnext = nullptr;
+        if (next < boxes.size())
+        {            
+            auto const& box = boxes[next];
+            double low[2] = { std::get<0>(box), std::get<1>(box) };
+            double high[2] =  { std::get<2>(box), std::get<3>(box) };
+            si::Region region(low, high, 2);
+            si::id_type id(next);
+            pdnext = new si::RTree::Data(sizeof(double), reinterpret_cast<byte*>(low), region, id);
+            ++next;
+        }
+
+    }
+
+    sibench::boxes2d_t const& boxes;
+    sibench::boxes2d_t::size_type next;
+    si::RTree::Data* pdnext;
+
+private:
+    data_stream(data_stream const&); /*=delete*/
+    data_stream& operator=(data_stream const&); /*=delete*/
+};
 }
+#endif // SIBENCH_RTREE_LOAD_BULK
 
 int main()
 {
@@ -90,7 +158,7 @@ int main()
         std::string const lib("lsi");
         
         // Generate random objects for indexing
-        auto const boxes = sibench::generate_boxes(sibench::max_insertions);
+        auto const boxes = sibench::generate_boxes(sibench::max_insertions);       
 
         // Set up index
         typedef std::array<double, 2> coord_array_t;
@@ -101,6 +169,24 @@ int main()
         uint32_t const dimension = 2;
         si::id_type index_id;
         std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
+#ifdef SIBENCH_RTREE_LOAD_BULK
+        std::unique_ptr<si::ISpatialIndex> rtree;
+        // Benchmark: insert
+        {
+            si::IStorageManager* psm = sm.get();
+            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                [&rtree, &psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, &index_id] (sibench::boxes2d_t const& boxes, std::size_t /*iterations*/)
+            {
+                data_stream dstream(boxes);
+                std::unique_ptr<si::ISpatialIndex> rtree_tmp(si::RTree::createAndBulkLoadNewRTree(si::RTree::BLM_STR,
+                    dstream, *psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
+                rtree = std::move(rtree_tmp);
+            });
+            sibench::print_result(std::cout, lib, marks);
+
+            print_statistics(std::cout, lib, *rtree);
+        }
+#else
         std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm,
             fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
 
@@ -126,7 +212,7 @@ int main()
 
             print_statistics(std::cout, lib, *rtree);
         }
-
+#endif
         // Benchmark: query
         {
             size_t query_found = 0;

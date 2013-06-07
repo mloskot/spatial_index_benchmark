@@ -41,7 +41,12 @@ int main()
 #endif
         
         // Generate random objects for indexing
-        auto const boxes = sibench::generate_boxes(sibench::max_insertions);
+        auto boxes = sibench::generate_boxes(sibench::max_insertions);
+
+        std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
+        {
+             return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
+        });
 
         // Set up index
         std::size_t const max_capacity = 100;
