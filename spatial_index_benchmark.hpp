@@ -82,7 +82,8 @@ struct random_generator
 
     random_generator(std::size_t n)
         : max(static_cast<T>(n / 2))
-        , gen((unsigned int)std::chrono::system_clock::now().time_since_epoch().count())
+        , gen(1) // generate the same succession of results for everyone 
+                 // (unsigned int)std::chrono::system_clock::now().time_since_epoch().count())
         , dis(-max, max)
     {}
     
