@@ -12,6 +12,8 @@ project(spatial_index_benchmark)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
+enable_testing()
+
 # Compiler flags
 if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -61,6 +63,7 @@ if (CMAKE_HOST_UNIX)
   set(EXTRA_LIBS -lrt)
 endif()
 
+################################################################################
 # benchmark: libspatialindex 
 set(BSI benchmark_lsi)
 ## Linear
@@ -70,6 +73,7 @@ add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
 target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
 set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
 set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_LINEAR=1)
+add_test(NAME ${TARGET_BSI} CONFIGURATIONS Release COMMAND ${TARGET_BSI})
 ## Quadratic
 set(TARGET_BSI ${BSI}_quadratic)
 msg(${TARGET_BSI})
@@ -85,6 +89,7 @@ target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
 set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
 set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS RTREE_VARIANT_RSTAR=1)
 
+################################################################################
 # benchmark: Boost.Geometry
 set(BGI benchmark_bgi)
 ## Linear
