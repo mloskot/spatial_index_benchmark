@@ -10,3 +10,4 @@ cmake \
     ..
 #cmake --build .
 make -j ${NUMTHREADS}
+ctest -C Release -V --output-on-failure .  
