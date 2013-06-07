@@ -45,20 +45,38 @@ std::size_t const max_queries =  std::size_t(max_insertions * 0.1);
 
 enum class rtree_variant { rstar, linear, quadratic };
 
-inline std::pair<rtree_variant, std::string> get_rtree_variant()
+inline std::pair<rtree_variant, std::string> get_rtree_split_variant()
 {
-#ifdef SIBENCH_RTREE_VARIANT_LINEAR
+#ifdef SIBENCH_RTREE_SPLIT_LINEAR
     return std::make_pair(rtree_variant::linear, "L");
-#elif SIBENCH_RTREE_VARIANT_QUADRATIC
+#elif SIBENCH_RTREE_SPLIT_QUADRATIC
     return std::make_pair(rtree_variant::quadratic, "Q");
-#else
+#elif SIBENCH_RTREE_SPLIT_RSTAR
     return std::make_pair(rtree_variant::rstar, "R");
+#else
+#error Unknown rtree split algorithm
+#endif
+}
+
+inline std::pair<rtree_variant, std::string> get_rtree_load_variant()
+{
+#ifdef SIBENCH_RTREE_LOAD_ITR
+    return std::make_pair(rtree_variant::linear, "ITR");
+#elif SIBENCH_RTREE_LOAD_STR
+    return std::make_pair(rtree_variant::quadratic, "STR");
+#else
+#error Unknown rtree loading method
 #endif
 }
 
 inline std::string get_banner(std::string const& lib)
 {
-    return lib + "(" + get_rtree_variant().second + ")";
+    return lib 
+        + "(" 
+        + get_rtree_split_variant().second 
+        + ','
+        + get_rtree_load_variant().second
+        + ")";
 }
 
 //
@@ -171,7 +189,7 @@ inline std::ostream& operator<<(std::ostream& os, result_info const& r)
 
 inline std::ostream& print_result(std::ostream& os, std::string const& lib, result_info const& r)
 {
-    os << std::setw(12) << std::setfill(' ') << std::left
+    os << std::setw(15) << std::setfill(' ') << std::left
        << sibench::get_banner(lib) << ": " << r;
     return os;
 }

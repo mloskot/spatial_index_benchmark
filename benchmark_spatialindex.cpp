@@ -27,7 +27,7 @@ void print_statistics(std::ostream& os, std::string const& lib, si::ISpatialInde
 
 si::RTree::RTreeVariant get_variant()
 {
-    auto const rv = sibench::get_rtree_variant().first;
+    auto const rv = sibench::get_rtree_split_variant().first;
     switch(rv)
     {
     case sibench::rtree_variant::linear:
@@ -81,7 +81,7 @@ struct query_visitor : public si::IVisitor
     size_t m_io_found;
 };
 
-#ifdef SIBENCH_RTREE_LOAD_BULK
+#ifdef SIBENCH_RTREE_LOAD_STR
 struct data_stream : public si::IDataStream
 {
     data_stream(sibench::boxes2d_t const& boxes)
@@ -168,24 +168,8 @@ int main()
         uint32_t const dimension = 2;
         si::id_type index_id;
         std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
-#ifdef SIBENCH_RTREE_LOAD_BULK
-        std::unique_ptr<si::ISpatialIndex> rtree;
-        // Benchmark: insert
-        {
-            si::IStorageManager* psm = sm.get();
-            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
-                [&rtree, &psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, &index_id] (sibench::boxes2d_t const& boxes, std::size_t /*iterations*/)
-            {
-                data_stream dstream(boxes);
-                std::unique_ptr<si::ISpatialIndex> rtree_tmp(si::RTree::createAndBulkLoadNewRTree(si::RTree::BLM_STR,
-                    dstream, *psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
-                rtree = std::move(rtree_tmp);
-            });
-            sibench::print_result(std::cout, lib, marks);
 
-            print_statistics(std::cout, lib, *rtree);
-        }
-#else
+#ifdef SIBENCH_RTREE_LOAD_ITR
         std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm,
             fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
 
@@ -211,7 +195,27 @@ int main()
 
             print_statistics(std::cout, lib, *rtree);
         }
+#elif SIBENCH_RTREE_LOAD_STR
+        std::unique_ptr<si::ISpatialIndex> rtree;
+        // Benchmark: bulk loading (Split-Tile-Recurse)
+        {
+            si::IStorageManager* psm = sm.get();
+            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                [&rtree, &psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, &index_id] (sibench::boxes2d_t const& boxes, std::size_t /*iterations*/)
+            {
+                data_stream dstream(boxes);
+                std::unique_ptr<si::ISpatialIndex> rtree_tmp(si::RTree::createAndBulkLoadNewRTree(si::RTree::BLM_STR,
+                    dstream, *psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
+                rtree = std::move(rtree_tmp);
+            });
+            sibench::print_result(std::cout, lib, marks);
+
+            print_statistics(std::cout, lib, *rtree);
+        }
+#else
+#error Unknown rtree loading method
 #endif
+
         // Benchmark: query
         {
             size_t query_found = 0;

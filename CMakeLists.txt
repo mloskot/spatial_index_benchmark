@@ -76,40 +76,47 @@ endif()
 # benchmark: libspatialindex 
 set(BSI benchmark_lsi)
 
-foreach(variant linear quadratic rstar)
-  string(TOUPPER "${variant}" VARIANTU)
-  set(TARGET_BSI ${BSI}_${variant})
-  msg(${TARGET_BSI})
-  add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
-  target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
-  set_property(TARGET ${TARGET_BSI} APPEND PROPERTY INCLUDE_DIRECTORIES ${SPATIALINDEX_INCLUDE_DIR})
-  set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_VARIANT_${VARIANTU}=1)
-  add_test(NAME ${TARGET_BSI} CONFIGURATIONS Release COMMAND ${TARGET_BSI})
+# choose rtree split algorithm
+foreach(split_variant linear quadratic rstar)
+  string(TOUPPER "${split_variant}" SPLITVARU)
+
+  # choose iterative insertion or bulk loading (Split-Tile-Recurse)
+  foreach(load_variant itr str)
+    string(TOUPPER "${load_variant}" LOADVARU)
+    set(TARGET_BSI ${BSI}_${split_variant}_${load_variant})
+    msg(${TARGET_BSI})
+    add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
+    target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
+    set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_SPLIT_${SPLITVARU}=1)
+    set_property(TARGET ${TARGET_BSI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_LOAD_${LOADVARU}=1)
+    add_test(NAME ${TARGET_BSI} CONFIGURATIONS Release COMMAND ${TARGET_BSI})
+  endforeach()
 endforeach()
 
 ################################################################################
 # benchmark: Boost.Geometry
 set(BGI benchmark_bgi)
 
-## compile-time parameters
-foreach(variant linear quadratic rstar)
-  string(TOUPPER "${variant}" VARIANTU)
-  set(TARGET_BGI ${BGI}_${variant})
-  msg(${TARGET_BGI})
-  add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-  target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_VARIANT_${VARIANTU}=1)
-  add_test(NAME ${TARGET_BGI} CONFIGURATIONS Release COMMAND ${TARGET_BGI})
-endforeach()
+# choose tree balancing algorithm
+foreach(split_variant linear quadratic rstar)
+  string(TOUPPER "${split_variant}" SPLITVARU)
+  
+  # choose iterative insertion or bulk loading (Split-Tile-Recurse)
+  foreach(load_variant itr str)
+    string(TOUPPER "${load_variant}" LOADVARU)
+    
+    # choose between compile-time and run-time parameters
+    foreach(params_variant ct rt)
+      string(TOUPPER "${params_variant}" PARAMSVARU)
 
-## run-time parameters
-foreach(variant linear quadratic rstar)
-  string(TOUPPER "${variant}" VARIANTU)
-  set(TARGET_BGI ${BGI}_${variant}_rt)
-  msg(${TARGET_BGI})
-  add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
-  target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
-  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_VARIANT_${VARIANTU}=1)
-  set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_BGI_DYNAMIC_RTREE=1)
-  add_test(NAME ${TARGET_BGI} CONFIGURATIONS Release COMMAND ${TARGET_BGI})
+      set(TARGET_BGI ${BGI}_${split_variant}_${load_variant}_${params_variant})
+      msg(${TARGET_BGI})
+      add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
+      target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
+      set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_SPLIT_${SPLITVARU}=1)
+      set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_RTREE_LOAD_${LOADVARU}=1)
+      set_property(TARGET ${TARGET_BGI} APPEND PROPERTY COMPILE_DEFINITIONS SIBENCH_BGI_RTREE_PARAMS_${PARAMSVARU}=1)
+      add_test(NAME ${TARGET_BGI} CONFIGURATIONS Release COMMAND ${TARGET_BGI})
+    endforeach()
+  endforeach()
 endforeach()

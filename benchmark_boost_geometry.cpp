@@ -34,10 +34,12 @@ int main()
 {
     try
     {
-#ifdef SIBENCH_BGI_DYNAMIC_RTREE
+#ifdef SIBENCH_BGI_RTREE_PARAMS_CT
+        std::string const lib("bgi_ct");
+#elif SIBENCH_BGI_RTREE_PARAMS_RT
         std::string const lib("bgi_rt");
 #else
-        std::string const lib("bgi");
+#error Unknown Boost.Geometry rtree parameters variant
 #endif
         
         // Generate random objects for indexing
@@ -49,25 +51,34 @@ int main()
 
         typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
         typedef bg::model::box<point_t> box_t;
-#ifdef SIBENCH_BGI_DYNAMIC_RTREE
-    #ifdef SIBENCH_RTREE_VARIANT_LINEAR
-        typedef bgi::dynamic_linear rtree_parameters_t;
-    #elif SIBENCH_RTREE_VARIANT_QUADRATIC
-        typedef bgi::dynamic_quadratic rtree_parameters_t;
-    #else
-        typedef bgi::dynamic_rstar rtree_parameters_t;
-    #endif
-    typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
-    rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
-#else
-    #ifdef SIBENCH_RTREE_VARIANT_LINEAR
+#ifdef SIBENCH_BGI_RTREE_PARAMS_CT
+    #ifdef SIBENCH_RTREE_SPLIT_LINEAR
         typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
-    #elif SIBENCH_RTREE_VARIANT_QUADRATIC
+    #elif SIBENCH_RTREE_SPLIT_QUADRATIC
         typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
     #else
         typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;
     #endif    
-    rtree_t rtree;
+        rtree_t rtree;
+#elif SIBENCH_BGI_RTREE_PARAMS_RT
+    #ifdef SIBENCH_RTREE_SPLIT_LINEAR
+        typedef bgi::dynamic_linear rtree_parameters_t;
+    #elif SIBENCH_RTREE_SPLIT_QUADRATIC
+        typedef bgi::dynamic_quadratic rtree_parameters_t;
+    #else
+        typedef bgi::dynamic_rstar rtree_parameters_t;
+    #endif
+        typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
+        rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
+#endif
+
+#ifdef SIBENCH_RTREE_LOAD_STR
+        // No SRT loading available, just check if pre-sorting affects loading times
+        std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
+        {
+            // TODO: verify
+             return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
+        });
 #endif
 
         // Benchmark: insert
