@@ -34,7 +34,7 @@ int main()
 {
     try
     {
-#ifdef BGI_DYNAMIC_RTREE
+#ifdef SIBENCH_BGI_DYNAMIC_RTREE
         std::string const lib("bgi_rt");
 #else
         std::string const lib("bgi");
@@ -43,21 +43,16 @@ int main()
         // Generate random objects for indexing
         auto boxes = sibench::generate_boxes(sibench::max_insertions);
 
-        std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
-        {
-             return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
-        });
-
         // Set up index
         std::size_t const max_capacity = 100;
         std::size_t const min_capacity =  50; // default: max * 0.3
 
         typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
         typedef bg::model::box<point_t> box_t;
-#ifdef BGI_DYNAMIC_RTREE
-    #ifdef RTREE_VARIANT_LINEAR
+#ifdef SIBENCH_BGI_DYNAMIC_RTREE
+    #ifdef SIBENCH_RTREE_VARIANT_LINEAR
         typedef bgi::dynamic_linear rtree_parameters_t;
-    #elif RTREE_VARIANT_QUADRATIC
+    #elif SIBENCH_RTREE_VARIANT_QUADRATIC
         typedef bgi::dynamic_quadratic rtree_parameters_t;
     #else
         typedef bgi::dynamic_rstar rtree_parameters_t;
@@ -65,9 +60,9 @@ int main()
     typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
     rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
 #else
-    #ifdef RTREE_VARIANT_LINEAR
+    #ifdef SIBENCH_RTREE_VARIANT_LINEAR
         typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
-    #elif RTREE_VARIANT_QUADRATIC
+    #elif SIBENCH_RTREE_VARIANT_QUADRATIC
         typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
     #else
         typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;

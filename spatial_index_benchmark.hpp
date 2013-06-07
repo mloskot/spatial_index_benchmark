@@ -47,9 +47,9 @@ enum class rtree_variant { rstar, linear, quadratic };
 
 inline std::pair<rtree_variant, std::string> get_rtree_variant()
 {
-#ifdef RTREE_VARIANT_LINEAR
+#ifdef SIBENCH_RTREE_VARIANT_LINEAR
     return std::make_pair(rtree_variant::linear, "L");
-#elif RTREE_VARIANT_QUADRATIC
+#elif SIBENCH_RTREE_VARIANT_QUADRATIC
     return std::make_pair(rtree_variant::quadratic, "Q");
 #else
     return std::make_pair(rtree_variant::rstar, "R");

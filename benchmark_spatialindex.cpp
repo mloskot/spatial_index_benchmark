@@ -10,8 +10,6 @@
 using namespace std;
 namespace si = SpatialIndex;
 
-#define SIBENCH_RTREE_LOAD_BULK
-
 namespace {
 void print_statistics(std::ostream& os, std::string const& lib, si::ISpatialIndex const& i)
 {
@@ -148,8 +146,9 @@ private:
     data_stream(data_stream const&); /*=delete*/
     data_stream& operator=(data_stream const&); /*=delete*/
 };
-}
 #endif // SIBENCH_RTREE_LOAD_BULK
+
+} // unnamed namespace
 
 int main()
 {
