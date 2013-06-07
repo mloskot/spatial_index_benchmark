@@ -96,7 +96,7 @@ private:
     random_generator& operator=(random_generator const&) /*= delete*/;
 };
 
-inline coords_t generate_coordiantes(std::size_t n)
+inline coords_t generate_coordinates(std::size_t n)
 {
     random_generator<float> rg(n);
     coords_t coords;
@@ -110,7 +110,7 @@ inline coords_t generate_coordiantes(std::size_t n)
 
 inline points2d_t generate_points(std::size_t n)
 {
-    auto coords = generate_coordiantes(n * 2);
+    auto coords = generate_coordinates(n * 2);
     points2d_t points;
     points.reserve(n);
     auto s = coords.size();
