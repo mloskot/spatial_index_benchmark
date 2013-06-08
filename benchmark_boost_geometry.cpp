@@ -76,16 +76,35 @@ int main()
         // No SRT loading available, just check if pre-sorting affects loading times
         std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
         {
-            // TODO: verify
              return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
         });
 #endif
 
+//#define INTERNAL_TEST_BGI_INSERT_RANGE
+#ifdef INTERNAL_TEST_BGI_INSERT_RANGE
+        typedef std::vector<box_t> input_boxes_t;
+        bgboxes_t bgboxes;
+        bgboxes.reserve(boxes.size());
+        for(auto const& box : boxes)
+        {
+            point_t p1(std::get<0>(box), std::get<1>(box));
+            point_t p2(std::get<2>(box), std::get<3>(box));
+            bgboxes.emplace_back(p1, p2);
+        }
+        auto const& input_boxes = bgboxes;
+#else
+        typedef sibench::boxes2d_t input_boxes_t;
+        auto const& input_boxes = boxes;
+#endif // INTERNAL_TEST_BGI_INSERT_RANGE
+
         // Benchmark: insert
         {
-            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
-                [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            auto const marks = sibench::benchmark("insert", input_boxes.size(), input_boxes,
+                [&rtree] (input_boxes_t const& boxes, std::size_t iterations)
             {
+#ifdef INTERNAL_TEST_BGI_INSERT_RANGE
+                rtree.insert(boxes.cbegin(), boxes.cend());
+#else
                 auto const s = iterations < boxes.size() ? iterations : boxes.size();
                 for (size_t i = 0; i < s; ++i)
                 {
@@ -95,6 +114,7 @@ int main()
                     box_t region(p1, p2);
                     rtree.insert(region);
                 }
+#endif
             });
             sibench::print_result(std::cout, lib, marks);
         
