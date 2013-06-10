@@ -1,4 +1,42 @@
 ################################################################################
+# .\run_benchmark.bat .\_build\Release
+bgi_ct(L,ITR)  : insert 1000000 in 1.95593 to 1.95593 sec
+bgi_ct(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
+bgi_ct(L,ITR)  : query 100000 in 1.65373 to 1.65373 sec
+bgi_ct(L,ITR) stats: found=100041
+bgi_rt(L,ITR)  : insert 1000000 in 2.03737 to 2.03737 sec
+bgi_rt(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
+bgi_rt(L,ITR)  : query 100000 in 1.65572 to 1.65572 sec
+bgi_rt(L,ITR) stats: found=100041
+bgi_ct(L,STR)  : insert 1 in 1.18915 to 1.18915 sec
+bgi_ct(L,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(L,STR)  : query 100000 in 0.0948628 to 0.0948628 sec
+bgi_ct(L,STR) stats: found=100041
+bgi_ct(Q,ITR)  : insert 1000000 in 3.64972 to 3.64972 sec
+bgi_ct(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
+bgi_ct(Q,ITR)  : query 100000 in 0.230989 to 0.230989 sec
+bgi_ct(Q,ITR) stats: found=100041
+bgi_rt(Q,ITR)  : insert 1000000 in 3.83483 to 3.83483 sec
+bgi_rt(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
+bgi_rt(Q,ITR)  : query 100000 in 0.254898 to 0.254898 sec
+bgi_rt(Q,ITR) stats: found=100041
+bgi_ct(Q,STR)  : insert 1 in 1.18952 to 1.18952 sec
+bgi_ct(Q,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(Q,STR)  : query 100000 in 0.0937152 to 0.0937152 sec
+bgi_ct(Q,STR) stats: found=100041
+bgi_ct(R,ITR)  : insert 1000000 in 49.5555 to 49.5555 sec
+bgi_ct(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
+bgi_ct(R,ITR)  : query 100000 in 0.1379 to 0.1379 sec
+bgi_ct(R,ITR) stats: found=100041
+bgi_rt(R,ITR)  : insert 1000000 in 52.7014 to 52.7014 sec
+bgi_rt(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
+bgi_rt(R,ITR)  : query 100000 in 0.148991 to 0.148991 sec
+bgi_rt(R,ITR) stats: found=100041
+bgi_ct(R,STR)  : insert 1 in 1.19898 to 1.19898 sec
+bgi_ct(R,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(R,STR)  : query 100000 in 0.0945675 to 0.0945675 sec
+bgi_ct(R,STR) stats: found=100041
+################################################################################
 $ ./run_benchmark.sh _build-master
 bgi(L)      : insert 1000000 in 1.74286 to 1.74286 sec
 bgi(L) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
@@ -185,6 +223,5 @@ lsi(R,STR)     : insert 1000000 in 5.07776 to 5.07776 sec
 lsi(R,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
 lsi(R,STR)     : query 100000 in 3.32247 to 3.32247 sec
 lsi(R,STR) stats: found=100041
-################################################################################
 ################################################################################
 ################################################################################
