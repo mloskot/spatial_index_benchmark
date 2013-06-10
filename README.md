@@ -48,43 +48,66 @@ First prototype, API usage and parameters matched as much as I could, hopefully 
 HW: Intel(R) Xeon(R) CPU E5-2687W 0 @ 3.10GHz, 16 GB RAM; OS: Windows 7 64-bit
 
 ```
-bgi_ct(L,ITR)  : insert 1000000 in 1.95593 to 1.95593 sec
+bgi_ct(L,ITR)  : insert 1000000 in 1.94096 to 1.94096 sec
 bgi_ct(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
-bgi_ct(L,ITR)  : query 100000 in 1.65373 to 1.65373 sec
+bgi_ct(L,ITR)  : query 100000 in 1.63834 to 1.63834 sec
 bgi_ct(L,ITR) stats: found=100041
-bgi_rt(L,ITR)  : insert 1000000 in 2.03737 to 2.03737 sec
+bgi_rt(L,ITR)  : insert 1000000 in 2.08466 to 2.08466 sec
 bgi_rt(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
-bgi_rt(L,ITR)  : query 100000 in 1.65572 to 1.65572 sec
+bgi_rt(L,ITR)  : query 100000 in 1.65157 to 1.65157 sec
 bgi_rt(L,ITR) stats: found=100041
-bgi_ct(L,STR)  : insert 1 in 1.18915 to 1.18915 sec
+bgi_ct(L,STR)  : insert 1 in 1.16072 to 1.16072 sec
 bgi_ct(L,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
-bgi_ct(L,STR)  : query 100000 in 0.0948628 to 0.0948628 sec
+bgi_ct(L,STR)  : query 100000 in 0.0926232 to 0.0926232 sec
 bgi_ct(L,STR) stats: found=100041
-bgi_ct(Q,ITR)  : insert 1000000 in 3.64972 to 3.64972 sec
+bgi_ct(Q,ITR)  : insert 1000000 in 3.73827 to 3.73827 sec
 bgi_ct(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
-bgi_ct(Q,ITR)  : query 100000 in 0.230989 to 0.230989 sec
+bgi_ct(Q,ITR)  : query 100000 in 0.229942 to 0.229942 sec
 bgi_ct(Q,ITR) stats: found=100041
-bgi_rt(Q,ITR)  : insert 1000000 in 3.83483 to 3.83483 sec
+bgi_rt(Q,ITR)  : insert 1000000 in 3.86477 to 3.86477 sec
 bgi_rt(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
-bgi_rt(Q,ITR)  : query 100000 in 0.254898 to 0.254898 sec
+bgi_rt(Q,ITR)  : query 100000 in 0.263479 to 0.263479 sec
 bgi_rt(Q,ITR) stats: found=100041
-bgi_ct(Q,STR)  : insert 1 in 1.18952 to 1.18952 sec
+bgi_ct(Q,STR)  : insert 1 in 1.35275 to 1.35275 sec
 bgi_ct(Q,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
-bgi_ct(Q,STR)  : query 100000 in 0.0937152 to 0.0937152 sec
+bgi_ct(Q,STR)  : query 100000 in 0.0993803 to 0.0993803 sec
 bgi_ct(Q,STR) stats: found=100041
-bgi_ct(R,ITR)  : insert 1000000 in 49.5555 to 49.5555 sec
+bgi_ct(R,ITR)  : insert 1000000 in 49.5993 to 49.5993 sec
 bgi_ct(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
-bgi_ct(R,ITR)  : query 100000 in 0.1379 to 0.1379 sec
+bgi_ct(R,ITR)  : query 100000 in 0.145886 to 0.145886 sec
 bgi_ct(R,ITR) stats: found=100041
-bgi_rt(R,ITR)  : insert 1000000 in 52.7014 to 52.7014 sec
+bgi_rt(R,ITR)  : insert 1000000 in 52.7011 to 52.7011 sec
 bgi_rt(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
-bgi_rt(R,ITR)  : query 100000 in 0.148991 to 0.148991 sec
+bgi_rt(R,ITR)  : query 100000 in 0.146533 to 0.146533 sec
 bgi_rt(R,ITR) stats: found=100041
-bgi_ct(R,STR)  : insert 1 in 1.19898 to 1.19898 sec
+bgi_ct(R,STR)  : insert 1 in 1.1649 to 1.1649 sec
 bgi_ct(R,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
-bgi_ct(R,STR)  : query 100000 in 0.0945675 to 0.0945675 sec
+bgi_ct(R,STR)  : query 100000 in 0.0915414 to 0.0915414 sec
 bgi_ct(R,STR) stats: found=100041
-
+lsi(L,ITR)     : insert 1000000 in 29.6271 to 29.6271 sec
+lsi(L,ITR) stats: reads=3686147, writes=1128391, nodes=15135, ndata=1000000
+lsi(L,ITR)     : query 100000 in 63.7928 to 63.7928 sec
+lsi(L,ITR) stats: found=100041
+lsi(L,STR)     : insert 1000000 in 5.14438 to 5.14438 sec
+lsi(L,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(L,STR)     : query 100000 in 3.31617 to 3.31617 sec
+lsi(L,STR) stats: found=100041
+lsi(Q,ITR)     : insert 1000000 in 50.8474 to 50.8474 sec
+lsi(Q,ITR) stats: reads=3629754, writes=1134191, nodes=14597, ndata=1000000
+lsi(Q,ITR)     : query 100000 in 8.28458 to 8.28458 sec
+lsi(Q,ITR) stats: found=100041
+lsi(Q,STR)     : insert 1000000 in 5.05832 to 5.05832 sec
+lsi(Q,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(Q,STR)     : query 100000 in 3.3102 to 3.3102 sec
+lsi(Q,STR) stats: found=100041
+lsi(R,ITR)     : insert 1000000 in 67.4284 to 67.4284 sec
+lsi(R,ITR) stats: reads=5422163, writes=1756203, nodes=14735, ndata=1000000
+lsi(R,ITR)     : query 100000 in 3.91276 to 3.91276 sec
+lsi(R,ITR) stats: found=100041
+lsi(R,STR)     : insert 1000000 in 5.04004 to 5.04004 sec
+lsi(R,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(R,STR)     : query 100000 in 3.31009 to 3.31009 sec
+lsi(R,STR) stats: found=100041
 ```
 
 ## TODO
