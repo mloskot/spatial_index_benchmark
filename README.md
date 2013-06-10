@@ -14,11 +14,13 @@ Requirements
 
 * C++11 compiler
 * CMake
-* Boost headers from its SVN trunk or Boost 1.53+ with copy of [statistics.hpp](https://gist.github.com/mloskot/5715329)
-added to trunk in [r84649](https://svn.boost.org/trac/boost/changeset/84649).
-Note, this is internal utility and it is not a part of the Boost.Geometry public interface.
-* [libspatialindex](https://github.com/libspatialindex/libspatialindex) headers and libraries
-(for Windows, use [OSGeo4W](http://trac.osgeo.org/osgeo4w/).
+* Boost headers current SVN trunk which includes required **internal** utilities:
+** ```boost/geometry/index/detail/rtree/utilities/statistics.hpp``` -
+added in [r84649](https://svn.boost.org/trac/boost/changeset/84649)
+** ```boost/geometry/index/detail/rtree/pack_create.hpp``` - 
+added in [r84720](https://svn.boost.org/trac/boost/changeset/84720)
+* [libspatialindex](https://github.com/libspatialindex/libspatialindex) headers
+and libraries (for Windows, use [OSGeo4W](http://trac.osgeo.org/osgeo4w/).
 
 Overview
 --------

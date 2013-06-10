@@ -6,6 +6,9 @@
 // at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "spatial_index_benchmark.hpp"
+#ifdef SIBENCH_RTREE_LOAD_STR
+#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL 1
+#endif
 #include <boost/geometry/index/rtree.hpp>
 // enable internal debugging utilities
 #include <boost/geometry/index/detail/rtree/utilities/statistics.hpp>
@@ -72,6 +75,7 @@ int main()
         rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
 #endif
 
+#if 0
 #ifdef SIBENCH_RTREE_LOAD_STR
         // No SRT loading available, just check if pre-sorting affects loading times
         std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
@@ -79,11 +83,11 @@ int main()
              return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
         });
 #endif
+#endif
 
-//#define INTERNAL_TEST_BGI_INSERT_RANGE
-#ifdef INTERNAL_TEST_BGI_INSERT_RANGE
+#ifdef SIBENCH_RTREE_LOAD_STR
         typedef std::vector<box_t> input_boxes_t;
-        bgboxes_t bgboxes;
+        input_boxes_t bgboxes;
         bgboxes.reserve(boxes.size());
         for(auto const& box : boxes)
         {
@@ -95,14 +99,16 @@ int main()
 #else
         typedef sibench::boxes2d_t input_boxes_t;
         auto const& input_boxes = boxes;
-#endif // INTERNAL_TEST_BGI_INSERT_RANGE
+#endif // SIBENCH_RTREE_LOAD_STR
 
         // Benchmark: insert
         {
             auto const marks = sibench::benchmark("insert", input_boxes.size(), input_boxes,
                 [&rtree] (input_boxes_t const& boxes, std::size_t iterations)
             {
-#ifdef INTERNAL_TEST_BGI_INSERT_RANGE
+#ifdef SIBENCH_RTREE_LOAD_STR
+                boost::ignore_unused_variable_warning(iterations);
+
                 rtree.insert(boxes.cbegin(), boxes.cend());
 #else
                 auto const s = iterations < boxes.size() ? iterations : boxes.size();
