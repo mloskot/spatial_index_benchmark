@@ -15,9 +15,9 @@ Requirements
 * C++11 compiler
 * CMake
 * Boost headers current SVN trunk which includes required **internal** utilities:
-** ```boost/geometry/index/detail/rtree/utilities/statistics.hpp``` -
+  * ```boost/geometry/index/detail/rtree/utilities/statistics.hpp``` -
 added in [r84649](https://svn.boost.org/trac/boost/changeset/84649)
-** ```boost/geometry/index/detail/rtree/pack_create.hpp``` - 
+  * ```boost/geometry/index/detail/rtree/pack_create.hpp``` - 
 added in [r84720](https://svn.boost.org/trac/boost/changeset/84720)
 * [libspatialindex](https://github.com/libspatialindex/libspatialindex) headers
 and libraries (for Windows, use [OSGeo4W](http://trac.osgeo.org/osgeo4w/).
