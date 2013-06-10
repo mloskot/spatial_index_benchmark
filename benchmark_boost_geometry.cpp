@@ -117,11 +117,12 @@ int main()
                     rtree.insert(region);
                 }
             });
+#endif // SIBENCH_RTREE_LOAD_STR
+
             sibench::print_result(std::cout, lib, marks);
 
             //std::cout <<  rtree;
             print_statistics(std::cout, lib, rtree);
-#endif // SIBENCH_RTREE_LOAD_STR
         }
 
         // Benchmark: query
