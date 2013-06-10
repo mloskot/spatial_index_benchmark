@@ -108,9 +108,14 @@ foreach(split_variant linear quadratic rstar)
   # choose iterative insertion or bulk loading (Split-Tile-Recurse)
   foreach(load_variant itr str)
     string(TOUPPER "${load_variant}" LOADVARU)
-    
+   
+    set(params_variant ct)
+    if (${load_variant} STREQUAL "itr")
+        list(APPEND params_variant rt)
+    endif()
+
     # choose between compile-time and run-time parameters
-    foreach(params_variant ct rt)
+    foreach(params_variant ${params_variant})
       string(TOUPPER "${params_variant}" PARAMSVARU)
 
       set(TARGET_BGI ${BGI}_${split_variant}_${load_variant}_${params_variant})

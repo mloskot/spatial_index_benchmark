@@ -42,7 +42,7 @@ int main()
 #elif SIBENCH_BGI_RTREE_PARAMS_RT
         std::string const lib("bgi_rt");
 #else
-#error Unknown Boost.Geometry rtree parameters variant
+#error Boost.Geometry rtree parameters variant unknown
 #endif
         
         // Generate random objects for indexing
@@ -61,8 +61,10 @@ int main()
         typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
     #else
         typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;
-    #endif    
-        rtree_t rtree;
+    #endif
+
+    rtree_t rtree;
+
 #elif SIBENCH_BGI_RTREE_PARAMS_RT
     #ifdef SIBENCH_RTREE_SPLIT_LINEAR
         typedef bgi::dynamic_linear rtree_parameters_t;
@@ -71,46 +73,40 @@ int main()
     #else
         typedef bgi::dynamic_rstar rtree_parameters_t;
     #endif
-        typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
-        rtree_t rtree(rtree_parameters_t(max_capacity, min_capacity));
-#endif
+    rtree_parameters_t rtree_parameters(max_capacity, min_capacity);
+    typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
 
-#if 0
-#ifdef SIBENCH_RTREE_LOAD_STR
-        // No SRT loading available, just check if pre-sorting affects loading times
-        std::sort(boxes.begin(), boxes.end(), [](sibench::box2d_t const& b1, sibench::box2d_t const& b2)
-        {
-             return std::get<2>(b1) + std::get<0>(b1) < std::get<2>(b2) + std::get<0>(b2);
-        });
-#endif
-#endif
-
-#ifdef SIBENCH_RTREE_LOAD_STR
-        typedef std::vector<box_t> input_boxes_t;
-        input_boxes_t bgboxes;
-        bgboxes.reserve(boxes.size());
-        for(auto const& box : boxes)
-        {
-            point_t p1(std::get<0>(box), std::get<1>(box));
-            point_t p2(std::get<2>(box), std::get<3>(box));
-            bgboxes.emplace_back(p1, p2);
-        }
-        auto const& input_boxes = bgboxes;
-#else
-        typedef sibench::boxes2d_t input_boxes_t;
-        auto const& input_boxes = boxes;
-#endif // SIBENCH_RTREE_LOAD_STR
+    rtree_t rtree(rtree_parameters);
+#endif // SIBENCH_BGI_RTREE_PARAMS_RT
 
         // Benchmark: insert
         {
-            auto const marks = sibench::benchmark("insert", input_boxes.size(), input_boxes,
-                [&rtree] (input_boxes_t const& boxes, std::size_t iterations)
-            {
 #ifdef SIBENCH_RTREE_LOAD_STR
-                boost::ignore_unused_variable_warning(iterations);
+            typedef std::vector<box_t> box_values_t;
+            box_values_t vboxes;
+            vboxes.reserve(vboxes.size());
+            for(auto const& box : boxes)
+            {
+                point_t p1(std::get<0>(box), std::get<1>(box));
+                point_t p2(std::get<2>(box), std::get<3>(box));
+                vboxes.emplace_back(p1, p2);
+            }
 
-                rtree.insert(boxes.cbegin(), boxes.cend());
+            auto const marks = sibench::benchmark("insert", 1, vboxes,
+                [&rtree] (box_values_t const& boxes, std::size_t iterations)
+            {
+#ifdef SIBENCH_BGI_RTREE_PARAMS_CT
+                rtree = rtree_t(boxes.cbegin(), boxes.cend());
 #else
+#error Boost.Geometry rtree bulk loading with run-time parameters unavailable
+#endif
+                ::boost::ignore_unused_variable_warning(boxes);
+                ::boost::ignore_unused_variable_warning(iterations);
+            });
+#else
+            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            {
                 auto const s = iterations < boxes.size() ? iterations : boxes.size();
                 for (size_t i = 0; i < s; ++i)
                 {
@@ -120,12 +116,12 @@ int main()
                     box_t region(p1, p2);
                     rtree.insert(region);
                 }
-#endif
             });
             sibench::print_result(std::cout, lib, marks);
-        
+
             //std::cout <<  rtree;
             print_statistics(std::cout, lib, rtree);
+#endif // SIBENCH_RTREE_LOAD_STR
         }
 
         // Benchmark: query
