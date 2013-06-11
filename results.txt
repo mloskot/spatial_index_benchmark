@@ -1,4 +1,66 @@
 ################################################################################
+# mloskot spatial_index_benchmark (master)$ ./run_benchmark.sh _build-master/
+bgi_ct(L,ITR)  : insert 1000000 in 1.66846 to 1.66846 sec
+bgi_ct(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
+bgi_ct(L,ITR)  : query 100000 in 2.42804 to 2.42804 sec
+bgi_ct(L,ITR) stats: found=100041
+bgi_rt(L,ITR)  : insert 1000000 in 1.748 to 1.748 sec
+bgi_rt(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
+bgi_rt(L,ITR)  : query 100000 in 2.63233 to 2.63233 sec
+bgi_rt(L,ITR) stats: found=100041
+bgi_ct(L,STR)  : insert 1 in 1.64567 to 1.64567 sec
+bgi_ct(L,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(L,STR)  : query 100000 in 0.151186 to 0.151186 sec
+bgi_ct(L,STR) stats: found=100041
+lsi(L,ITR)     : insert 1000000 in 24.256 to 24.256 sec
+lsi(L,ITR) stats: reads=3686147, writes=1128391, nodes=15135, ndata=1000000
+lsi(L,ITR)     : query 100000 in 56.2209 to 56.2209 sec
+lsi(L,ITR) stats: found=100041
+lsi(L,STR)     : insert 1000000 in 5.19868 to 5.19868 sec
+lsi(L,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(L,STR)     : query 100000 in 3.31975 to 3.31975 sec
+lsi(L,STR) stats: found=100041
+bgi_ct(Q,ITR)  : insert 1000000 in 3.45888 to 3.45888 sec
+bgi_ct(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
+bgi_ct(Q,ITR)  : query 100000 in 0.364427 to 0.364427 sec
+bgi_ct(Q,ITR) stats: found=100041
+bgi_rt(Q,ITR)  : insert 1000000 in 3.57446 to 3.57446 sec
+bgi_rt(Q,ITR) stats: levels=5, nodes=209, leaves=14447, values=1000000, values_min=50, values_max=100
+bgi_rt(Q,ITR)  : query 100000 in 0.382014 to 0.382014 sec
+bgi_rt(Q,ITR) stats: found=100041
+bgi_ct(Q,STR)  : insert 1 in 1.67811 to 1.67811 sec
+bgi_ct(Q,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(Q,STR)  : query 100000 in 0.151241 to 0.151241 sec
+bgi_ct(Q,STR) stats: found=100041
+lsi(Q,ITR)     : insert 1000000 in 38.0492 to 38.0492 sec
+lsi(Q,ITR) stats: reads=3629754, writes=1134191, nodes=14597, ndata=1000000
+lsi(Q,ITR)     : query 100000 in 7.57129 to 7.57129 sec
+lsi(Q,ITR) stats: found=100041
+lsi(Q,STR)     : insert 1000000 in 5.01712 to 5.01712 sec
+lsi(Q,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(Q,STR)     : query 100000 in 3.28503 to 3.28503 sec
+lsi(Q,STR) stats: found=100041
+bgi_ct(R,ITR)  : insert 1000000 in 69.0349 to 69.0349 sec
+bgi_ct(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
+bgi_ct(R,ITR)  : query 100000 in 0.219773 to 0.219773 sec
+bgi_ct(R,ITR) stats: found=100041
+bgi_rt(R,ITR)  : insert 1000000 in 67.3839 to 67.3839 sec
+bgi_rt(R,ITR) stats: levels=5, nodes=180, leaves=13646, values=1000000, values_min=50, values_max=100
+bgi_rt(R,ITR)  : query 100000 in 0.229998 to 0.229998 sec
+bgi_rt(R,ITR) stats: found=100041
+bgi_ct(R,STR)  : insert 1 in 1.6874 to 1.6874 sec
+bgi_ct(R,STR) stats: levels=3, nodes=101, leaves=10000, values=1000000, values_min=100, values_max=100
+bgi_ct(R,STR)  : query 100000 in 0.17075 to 0.17075 sec
+bgi_ct(R,STR) stats: found=100041
+lsi(R,ITR)     : insert 1000000 in 61.3814 to 61.3814 sec
+lsi(R,ITR) stats: reads=5422163, writes=1756203, nodes=14735, ndata=1000000
+lsi(R,ITR)     : query 100000 in 3.55243 to 3.55243 sec
+lsi(R,ITR) stats: found=100041
+lsi(R,STR)     : insert 1000000 in 4.97635 to 4.97635 sec
+lsi(R,STR) stats: reads=1, writes=20410, nodes=20409, ndata=1000000
+lsi(R,STR)     : query 100000 in 3.29458 to 3.29458 sec
+lsi(R,STR) stats: found=100041
+################################################################################
 # .\run_benchmark.bat .\_build\Release
 bgi_ct(L,ITR)  : insert 1000000 in 1.95593 to 1.95593 sec
 bgi_ct(L,ITR) stats: levels=5, nodes=241, leaves=14985, values=1000000, values_min=50, values_max=100
