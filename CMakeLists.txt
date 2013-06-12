@@ -23,6 +23,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
+option(BGI_ENABLE_CT
+  "Enable compile-time boost::geometry::index::rtree parameters" OFF)
+
 # Compiler flags
 if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -108,10 +111,10 @@ foreach(split_variant linear quadratic rstar)
   # choose iterative insertion or bulk loading (Split-Tile-Recurse)
   foreach(load_variant itr str)
     string(TOUPPER "${load_variant}" LOADVARU)
-   
-    set(params_variant ct)
-    if (${load_variant} STREQUAL "itr")
-        list(APPEND params_variant rt)
+
+    set(params_variant rt)
+    if (BGI_ENABLE_CT)
+      list(APPEND params_variant ct)
     endif()
 
     # choose between compile-time and run-time parameters

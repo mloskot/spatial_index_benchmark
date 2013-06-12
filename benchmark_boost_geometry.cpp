@@ -73,10 +73,11 @@ int main()
     #else
         typedef bgi::dynamic_rstar rtree_parameters_t;
     #endif
-    rtree_parameters_t rtree_parameters(max_capacity, min_capacity);
     typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
 
+    rtree_parameters_t rtree_parameters(max_capacity, min_capacity);
     rtree_t rtree(rtree_parameters);
+
 #endif // SIBENCH_BGI_RTREE_PARAMS_RT
 
         // Benchmark: insert
@@ -93,17 +94,19 @@ int main()
             }
 
             auto const marks = sibench::benchmark("insert", 1, vboxes,
+#if SIBENCH_BGI_RTREE_PARAMS_CT
                 [&rtree] (box_values_t const& boxes, std::size_t iterations)
             {
-#ifdef SIBENCH_BGI_RTREE_PARAMS_CT
                 rtree = rtree_t(boxes.cbegin(), boxes.cend());
-#else
-#error Boost.Geometry rtree bulk loading with run-time parameters unavailable
+#else // !SIBENCH_BGI_RTREE_PARAMS_CT
+                [&rtree, &rtree_parameters] (box_values_t const& boxes, std::size_t iterations)
+            {
+                rtree = rtree_t(boxes.cbegin(), boxes.cend(), rtree_parameters);
 #endif
-                ::boost::ignore_unused_variable_warning(boxes);
+
                 ::boost::ignore_unused_variable_warning(iterations);
             });
-#else
+#else // !SIBENCH_RTREE_LOAD_STR
             auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
                 [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
             {
@@ -117,7 +120,7 @@ int main()
                     rtree.insert(region);
                 }
             });
-#endif // SIBENCH_RTREE_LOAD_STR
+#endif
 
             sibench::print_result(std::cout, lib, marks);
 
