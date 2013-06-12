@@ -62,8 +62,8 @@ inline std::pair<rtree_variant, std::string> get_rtree_load_variant()
 {
 #ifdef SIBENCH_RTREE_LOAD_ITR
     return std::make_pair(rtree_variant::linear, "ITR");
-#elif SIBENCH_RTREE_LOAD_STR
-    return std::make_pair(rtree_variant::quadratic, "STR");
+#elif SIBENCH_RTREE_LOAD_BLK
+    return std::make_pair(rtree_variant::quadratic, "BLK");
 #else
 #error Unknown rtree loading method
 #endif

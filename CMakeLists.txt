@@ -84,7 +84,7 @@ foreach(split_variant linear quadratic rstar)
   string(TOUPPER "${split_variant}" SPLITVARU)
 
   # choose iterative insertion or bulk loading (Split-Tile-Recurse)
-  foreach(load_variant itr str)
+  foreach(load_variant itr blk)
     string(TOUPPER "${load_variant}" LOADVARU)
     set(TARGET_BSI ${BSI}_${split_variant}_${load_variant})
     msg(${TARGET_BSI})
@@ -109,7 +109,7 @@ foreach(split_variant linear quadratic rstar)
   string(TOUPPER "${split_variant}" SPLITVARU)
   
   # choose iterative insertion or bulk loading (Split-Tile-Recurse)
-  foreach(load_variant itr str)
+  foreach(load_variant itr blk)
     string(TOUPPER "${load_variant}" LOADVARU)
 
     set(params_variant rt)

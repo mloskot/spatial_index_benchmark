@@ -81,7 +81,7 @@ struct query_visitor : public si::IVisitor
     size_t m_io_found;
 };
 
-#ifdef SIBENCH_RTREE_LOAD_STR
+#ifdef SIBENCH_RTREE_LOAD_BLK
 struct data_stream : public si::IDataStream
 {
     data_stream(sibench::boxes2d_t const& boxes)
@@ -195,7 +195,7 @@ int main()
 
             print_statistics(std::cout, lib, *rtree);
         }
-#elif SIBENCH_RTREE_LOAD_STR
+#elif SIBENCH_RTREE_LOAD_BLK
         std::unique_ptr<si::ISpatialIndex> rtree;
         // Benchmark: bulk loading (Split-Tile-Recurse)
         {

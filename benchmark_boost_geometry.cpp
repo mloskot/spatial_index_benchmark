@@ -6,7 +6,7 @@
 // at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "spatial_index_benchmark.hpp"
-#ifdef SIBENCH_RTREE_LOAD_STR
+#ifdef SIBENCH_RTREE_LOAD_BLK
 #define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL 1
 #endif
 #include <boost/geometry/index/rtree.hpp>
@@ -82,7 +82,7 @@ int main()
 
         // Benchmark: insert
         {
-#ifdef SIBENCH_RTREE_LOAD_STR
+#ifdef SIBENCH_RTREE_LOAD_BLK
             typedef std::vector<box_t> box_values_t;
             box_values_t vboxes;
             vboxes.reserve(vboxes.size());
@@ -106,7 +106,7 @@ int main()
 
                 ::boost::ignore_unused_variable_warning(iterations);
             });
-#else // !SIBENCH_RTREE_LOAD_STR
+#else // !SIBENCH_RTREE_LOAD_BLK
             auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
                 [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
             {
