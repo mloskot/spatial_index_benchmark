@@ -227,7 +227,7 @@ inline std::ostream& print_result_header(std::ostream& os, std::string const& li
     std::streamsize const wn(5), wf(10), vn(2);
     os << sibench::get_banner(lib) << ' ' << std::setw(wn * vn + wf * vn) << std::setfill('-') << ' ' << std::endl;
     os << std::left << std::setfill(' ')
-       << std::setw(wn * vn) << "capacity" << std::setw(wf) << "load (s)" << std::setw(wf) << "query (s)"
+       << std::setw(wn * vn) << "capacity" << std::setw(wf) << "load" << std::setw(wf) << "query"
        << std::endl;
     return os;
 }
