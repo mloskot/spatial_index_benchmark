@@ -85,7 +85,7 @@ int main()
 #ifdef SIBENCH_RTREE_LOAD_BLK
             typedef std::vector<box_t> box_values_t;
             box_values_t vboxes;
-            vboxes.reserve(vboxes.size());
+            vboxes.reserve(boxes.size());
             for(auto const& box : boxes)
             {
                 point_t p1(std::get<0>(box), std::get<1>(box));
