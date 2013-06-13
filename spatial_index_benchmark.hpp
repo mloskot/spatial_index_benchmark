@@ -40,6 +40,7 @@ namespace sibench
 // Default benchmark settings
 //
 std::size_t const max_iterations = 1000000;
+std::size_t const max_capacities = 100;
 std::size_t const max_insertions = max_iterations;
 std::size_t const max_queries =  std::size_t(max_insertions * 0.1);
 
@@ -164,12 +165,22 @@ struct result_info
     std::string step;
     double min;
     double max;
-        std::size_t iterations;
+    std::size_t min_capacity;
+    std::size_t max_capacity;
+    std::size_t iterations;
 
-    result_info(std::string step)
-        : step(std::move(step))
-        , min(-1), max(-1), iterations(0)
+    result_info(char const* step = "")
+        : step(step)
+        , min(-1), max(-1), min_capacity(0), max_capacity(0), iterations(0)
     {}
+
+    void accumulate(result_info const& r)
+    {
+        min = min < 0 ? r.min : (std::min)(min, r.min);
+        max = max < 0 ? r.max :  (std::max)(max, r.max);
+
+        assert(min <= max);
+    }
 
     template <typename Timer>
     void set_mark(Timer const& t)
@@ -177,6 +188,8 @@ struct result_info
         auto const m = t.elapsed();
         min = min < 0 ? m : (std::min)(m, min);
         max = max < 0 ? m : (std::max)(m, max);
+
+        assert(min <= max);
     }
 };
 
@@ -194,6 +207,65 @@ inline std::ostream& print_result(std::ostream& os, std::string const& lib, resu
     return os;
 }
 
+inline std::ostream& print_result(std::ostream& os, std::string const& /*lib*/, result_info const& load, result_info const& query)
+{
+    assert(load.min_capacity == load.min_capacity);
+    assert(query.max_capacity == query.max_capacity);
+
+    std::streamsize wn(5), wf(10);
+    os << std::left << std::setfill(' ') << std::fixed << std::setprecision(6)
+       << std::setw(wn) << load.max_capacity
+       << std::setw(wn) << load.min_capacity 
+       << std::setw(wf) << load.min
+       << std::setw(wf) << query.min
+       << std::endl;
+    return os;
+}
+
+inline std::ostream& print_result_header(std::ostream& os, std::string const& lib)
+{
+    std::streamsize const wn(5), wf(10), vn(2);
+    os << sibench::get_banner(lib) << ' ' << std::setw(wn * vn + wf * vn) << std::setfill('-') << ' ' << std::endl;
+    os << std::left << std::setfill(' ')
+       << std::setw(wn * vn) << "capacity" << std::setw(wf) << "load (s)" << std::setw(wf) << "query (s)"
+       << std::endl;
+    return os;
+}
+
+#if 0
+// min and max
+inline std::ostream& print_result(std::ostream& os, std::string const& /*lib*/, result_info const& load, result_info const& query)
+{
+    assert(load.min_capacity == load.min_capacity);
+    assert(query.max_capacity == query.max_capacity);
+
+    std::streamsize wn(5), wf(10);
+    os << std::left << std::setfill(' ') << std::fixed << std::setprecision(6)
+       << std::setw(wn) << load.max_capacity
+       << std::setw(wn) << load.min_capacity 
+       << std::setw(wf) << load.min
+       << std::setw(wf) << load.max
+       << std::setw(wf) << query.min
+       << std::setw(wf) << query.max
+       << std::endl;
+    return os;
+}
+inline std::ostream& print_result_header(std::ostream& os, std::string const& lib)
+{
+    std::streamsize const wn(5), wf(10), vn(2);
+    os << sibench::get_banner(lib) << ' ' << std::setw(wn * vn + wf * vn * vn) << std::setfill('-') << ' ' << std::endl;
+    os << std::left << std::setfill(' ')
+       << std::setw(wn * vn) << "capacity" << std::setw(wf * vn) << "load (s)" << std::setw(wf * vn) << "query (s)"
+       << std::endl;
+    os << std::left << std::setfill(' ')
+       << std::setw(wn) << "max" << std::setw(wn) << "min"
+       << std::setw(wf) << "min" << std::setw(wf) << "max"
+       << std::setw(wf) << "min" << std::setw(wf) << "max"
+       << std::endl;
+    return os;
+}
+#endif
+
 inline std::ostream& print_query_count(std::ostream& os, std::string const& lib, size_t i)
 {
     os << sibench::get_banner(lib) << " stats: found=" << i << std::endl;
@@ -201,7 +273,7 @@ inline std::ostream& print_query_count(std::ostream& os, std::string const& lib,
 }
 
 template <typename Container, typename Operation>
-inline result_info benchmark(std::string step, std::size_t iterations,
+inline result_info benchmark(char const* step, std::size_t iterations,
     Container const& objects, Operation op)
 {
     result_info r(step);

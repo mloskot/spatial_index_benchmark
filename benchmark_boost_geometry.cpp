@@ -40,118 +40,142 @@ int main()
 #ifdef SIBENCH_BGI_RTREE_PARAMS_CT
         std::string const lib("bgi_ct");
 #elif SIBENCH_BGI_RTREE_PARAMS_RT
-        std::string const lib("bgi_rt");
+        std::string const lib("bgi");
 #else
 #error Boost.Geometry rtree parameters variant unknown
 #endif
+
+        sibench::print_result_header(std::cout, lib);
         
         // Generate random objects for indexing
-        auto boxes = sibench::generate_boxes(sibench::max_insertions);
+        auto const boxes = sibench::generate_boxes(sibench::max_insertions);
 
-        // Set up index
-        std::size_t const max_capacity = 100;
-        std::size_t const min_capacity =  50; // default: max * 0.3
+        double const fill_factor = 0.5;
+        for (std::size_t next_capacity = 2; next_capacity <= sibench::max_capacities; ++next_capacity)
+        {
+            // accumulated results store (load, query)
+            sibench::result_info load_r;
+            sibench::result_info query_r;
 
-        typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-        typedef bg::model::box<point_t> box_t;
+            // index parameters
+            std::size_t const min_capacity = next_capacity;
+            std::size_t const max_capacity = std::size_t(std::floor(min_capacity / fill_factor));
+
+            load_r.min_capacity = query_r.min_capacity = min_capacity;
+            load_r.max_capacity = query_r.max_capacity = max_capacity;
+
+            typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
+            typedef bg::model::box<point_t> box_t;
 #ifdef SIBENCH_BGI_RTREE_PARAMS_CT
-    #ifdef SIBENCH_RTREE_SPLIT_LINEAR
-        typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
-    #elif SIBENCH_RTREE_SPLIT_QUADRATIC
-        typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
-    #else
-        typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;
-    #endif
+            std::size_t const max_capacity = 100;
+            std::size_t const min_capacity =  50;
+#ifdef SIBENCH_RTREE_SPLIT_LINEAR
+            typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
+#elif SIBENCH_RTREE_SPLIT_QUADRATIC
+            typedef bgi::rtree<box_t, bgi::quadratic<max_capacity, min_capacity>> rtree_t;
+#else
+            typedef bgi::rtree<box_t, bgi::rstar<max_capacity, min_capacity>> rtree_t;
+#endif
 
-    rtree_t rtree;
+            rtree_t rtree;
 
 #elif SIBENCH_BGI_RTREE_PARAMS_RT
-    #ifdef SIBENCH_RTREE_SPLIT_LINEAR
-        typedef bgi::dynamic_linear rtree_parameters_t;
-    #elif SIBENCH_RTREE_SPLIT_QUADRATIC
-        typedef bgi::dynamic_quadratic rtree_parameters_t;
-    #else
-        typedef bgi::dynamic_rstar rtree_parameters_t;
-    #endif
-    typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
+#ifdef SIBENCH_RTREE_SPLIT_LINEAR
+            typedef bgi::dynamic_linear rtree_parameters_t;
+#elif SIBENCH_RTREE_SPLIT_QUADRATIC
+            typedef bgi::dynamic_quadratic rtree_parameters_t;
+#else
+            typedef bgi::dynamic_rstar rtree_parameters_t;
+#endif
+            typedef bgi::rtree<box_t, rtree_parameters_t> rtree_t;
 
-    rtree_parameters_t rtree_parameters(max_capacity, min_capacity);
-    rtree_t rtree(rtree_parameters);
+            rtree_parameters_t rtree_parameters(max_capacity, min_capacity);
+            rtree_t rtree(rtree_parameters);
 
 #endif // SIBENCH_BGI_RTREE_PARAMS_RT
 
-        // Benchmark: insert
-        {
+            // Benchmark: insert
+            {
 #ifdef SIBENCH_RTREE_LOAD_BLK
-            typedef std::vector<box_t> box_values_t;
-            box_values_t vboxes;
-            vboxes.reserve(boxes.size());
-            for(auto const& box : boxes)
-            {
-                point_t p1(std::get<0>(box), std::get<1>(box));
-                point_t p2(std::get<2>(box), std::get<3>(box));
-                vboxes.emplace_back(p1, p2);
-            }
-
-            auto const marks = sibench::benchmark("insert", 1, vboxes,
-#if SIBENCH_BGI_RTREE_PARAMS_CT
-                [&rtree] (box_values_t const& boxes, std::size_t iterations)
-            {
-                rtree = rtree_t(boxes.cbegin(), boxes.cend());
-#else // !SIBENCH_BGI_RTREE_PARAMS_CT
-                [&rtree, &rtree_parameters] (box_values_t const& boxes, std::size_t iterations)
-            {
-                rtree = rtree_t(boxes.cbegin(), boxes.cend(), rtree_parameters);
-#endif
-
-                ::boost::ignore_unused_variable_warning(iterations);
-            });
-#else // !SIBENCH_RTREE_LOAD_BLK
-            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
-                [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
-            {
-                auto const s = iterations < boxes.size() ? iterations : boxes.size();
-                for (size_t i = 0; i < s; ++i)
+                typedef std::vector<box_t> box_values_t;
+                box_values_t vboxes;
+                vboxes.reserve(boxes.size());
+                for(auto const& box : boxes)
                 {
-                    auto const& box = boxes[i];
                     point_t p1(std::get<0>(box), std::get<1>(box));
                     point_t p2(std::get<2>(box), std::get<3>(box));
-                    box_t region(p1, p2);
-                    rtree.insert(region);
+                    vboxes.emplace_back(p1, p2);
                 }
-            });
+
+                auto const marks = sibench::benchmark("load", 1, vboxes,
+#if SIBENCH_BGI_RTREE_PARAMS_CT
+                    [&rtree] (box_values_t const& boxes, std::size_t iterations)
+                {
+                    rtree = rtree_t(boxes.cbegin(), boxes.cend());
+#else // !SIBENCH_BGI_RTREE_PARAMS_CT
+                    [&rtree, &rtree_parameters] (box_values_t const& boxes, std::size_t iterations)
+                {
+                    rtree = rtree_t(boxes.cbegin(), boxes.cend(), rtree_parameters);
+#endif
+                    ::boost::ignore_unused_variable_warning(iterations);
+                });
+#else // !SIBENCH_RTREE_LOAD_BLK
+                auto const marks = sibench::benchmark("load", boxes.size(), boxes,
+                    [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+                {
+                    auto const s = iterations < boxes.size() ? iterations : boxes.size();
+                    for (size_t i = 0; i < s; ++i)
+                    {
+                        auto const& box = boxes[i];
+                        point_t p1(std::get<0>(box), std::get<1>(box));
+                        point_t p2(std::get<2>(box), std::get<3>(box));
+                        box_t region(p1, p2);
+                        rtree.insert(region);
+                    }
+                });
 #endif
 
-            sibench::print_result(std::cout, lib, marks);
+                load_r.accumulate(marks);
 
-            //std::cout <<  rtree;
-            print_statistics(std::cout, lib, rtree);
-        }
+                // debugging
+                //sibench::print_result(std::cout, lib, marks);
+                //std::cout <<  rtree;
+                //print_statistics(std::cout, lib, rtree);
+            }
 
-        // Benchmark: query
-        {
-            size_t query_found = 0;
-
-            auto const marks = sibench::benchmark("query", sibench::max_queries, boxes,
-                [&rtree, &query_found] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            // Benchmark: query
             {
-                std::vector<box_t> result;
-                result.reserve(iterations);
-                
-                for (size_t i = 0; i < iterations; ++i)
+                std::size_t query_found = 0;
+
+                auto const marks = sibench::benchmark("query", sibench::max_queries, boxes,
+                    [&rtree, &query_found] (sibench::boxes2d_t const& boxes, std::size_t iterations)
                 {
-                    result.clear();
-                    auto const& box = boxes[i];
-                    point_t p1(std::get<0>(box) - 10, std::get<1>(box) - 10);
-                    point_t p2(std::get<2>(box) + 10, std::get<3>(box) + 10);
-                    box_t region(p1, p2);
-                    rtree.query(bgi::intersects(region), std::back_inserter(result));
-                    query_found += result.size();
-                }
-            });
-            sibench::print_result(std::cout, lib, marks);
-            sibench::print_query_count(std::cout, lib, query_found);
-        }
+                    std::vector<box_t> result;
+                    result.reserve(iterations);
+
+                    for (std::size_t i = 0; i < iterations; ++i)
+                    {
+                        result.clear();
+                        auto const& box = boxes[i];
+                        point_t p1(std::get<0>(box) - 10, std::get<1>(box) - 10);
+                        point_t p2(std::get<2>(box) + 10, std::get<3>(box) + 10);
+                        box_t region(p1, p2);
+                        rtree.query(bgi::intersects(region), std::back_inserter(result));
+                        query_found += result.size();
+                    }
+                });
+
+                query_r.accumulate(marks);
+
+                // debugging
+                //sibench::print_result(std::cout, lib, marks);
+                //sibench::print_query_count(std::cout, lib, query_found);
+            }
+
+            // single line per run
+            sibench::print_result(std::cout, lib, load_r, query_r);
+
+        } // for capacity
 
         return EXIT_SUCCESS;
     }

@@ -156,91 +156,118 @@ int main()
     {
         std::string const lib("lsi");
         
+        sibench::print_result_header(std::cout, lib);
+
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_insertions);       
 
-        // Set up index
-        typedef std::array<double, 2> coord_array_t;
-        si::RTree::RTreeVariant const variant = get_variant();
-        uint32_t const index_capacity = 100; // default: 100
-        uint32_t const leaf_capacity = 100; // default: 100
         double const fill_factor = 0.5; // default: 0.7 // TODO: does it mean index_capacity * fill_factor?
-        uint32_t const dimension = 2;
-        si::id_type index_id;
-        std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
+        for (std::size_t next_capacity = 2; next_capacity <= sibench::max_capacities; ++next_capacity)
+        {
+            // accumulated results store (load, query)
+            sibench::result_info load_r;
+            sibench::result_info query_r;
+
+            // index parameters
+            std::size_t const min_capacity = next_capacity;
+            std::size_t const max_capacity = std::size_t(std::floor(min_capacity / fill_factor));
+
+            load_r.min_capacity = query_r.min_capacity = min_capacity;
+            load_r.max_capacity = query_r.max_capacity = max_capacity;
+
+            typedef std::array<double, 2> coord_array_t;
+            si::RTree::RTreeVariant const variant = get_variant();
+            uint32_t const index_capacity = max_capacity; // default: 100
+            uint32_t const leaf_capacity = max_capacity; // default: 100
+            uint32_t const dimension = 2;
+            si::id_type index_id;
+            std::unique_ptr<si::IStorageManager> sm(si::StorageManager::createNewMemoryStorageManager());
 
 #ifdef SIBENCH_RTREE_LOAD_ITR
-        std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm,
-            fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
+            std::unique_ptr<si::ISpatialIndex> rtree(si::RTree::createNewRTree(*sm,
+                fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
 
-        // Benchmark: insert
-        {
-            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
-                [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            // Benchmark: insert
             {
-                auto const s = iterations < boxes.size() ? iterations : boxes.size();
-                for (size_t i = 0; i < s; ++i)
+                auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                    [&rtree] (sibench::boxes2d_t const& boxes, std::size_t iterations)
                 {
-                    auto const& box = boxes[i];
-                    coord_array_t const p1 = { std::get<0>(box), std::get<1>(box) };
-                    coord_array_t const p2 = { std::get<2>(box), std::get<3>(box) };
-                    si::Region region(
-                        si::Point(p1.data(), p1.size()),
-                        si::Point(p2.data(), p2.size()));
-                    si::id_type item_id(i);
-                    rtree->insertData(0, nullptr, region, item_id);
-                }
-            });
-            sibench::print_result(std::cout, lib, marks);
+                    auto const s = iterations < boxes.size() ? iterations : boxes.size();
+                    for (size_t i = 0; i < s; ++i)
+                    {
+                        auto const& box = boxes[i];
+                        coord_array_t const p1 = { std::get<0>(box), std::get<1>(box) };
+                        coord_array_t const p2 = { std::get<2>(box), std::get<3>(box) };
+                        si::Region region(
+                            si::Point(p1.data(), p1.size()),
+                            si::Point(p2.data(), p2.size()));
+                        si::id_type item_id(i);
+                        rtree->insertData(0, nullptr, region, item_id);
+                    }
+                });
 
-            print_statistics(std::cout, lib, *rtree);
-        }
+                load_r.accumulate(marks);
+                // debugging
+                //sibench::print_result(std::cout, lib, marks);
+                //print_statistics(std::cout, lib, *rtree);
+            }
 #elif SIBENCH_RTREE_LOAD_BLK
-        std::unique_ptr<si::ISpatialIndex> rtree;
-        // Benchmark: bulk loading (Split-Tile-Recurse)
-        {
-            si::IStorageManager* psm = sm.get();
-            auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
-                [&rtree, &psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, &index_id] (sibench::boxes2d_t const& boxes, std::size_t /*iterations*/)
+            std::unique_ptr<si::ISpatialIndex> rtree;
+            // Benchmark: bulk loading (Split-Tile-Recurse)
             {
-                data_stream dstream(boxes);
-                std::unique_ptr<si::ISpatialIndex> rtree_tmp(si::RTree::createAndBulkLoadNewRTree(si::RTree::BLM_STR,
-                    dstream, *psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
-                rtree = std::move(rtree_tmp);
-            });
-            sibench::print_result(std::cout, lib, marks);
+                si::IStorageManager* psm = sm.get();
+                auto const marks = sibench::benchmark("insert", boxes.size(), boxes,
+                    [&rtree, &psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, &index_id] (sibench::boxes2d_t const& boxes, std::size_t /*iterations*/)
+                {
+                    data_stream dstream(boxes);
+                    std::unique_ptr<si::ISpatialIndex> rtree_tmp(si::RTree::createAndBulkLoadNewRTree(si::RTree::BLM_STR,
+                        dstream, *psm, fill_factor, index_capacity, leaf_capacity, dimension, variant, index_id));
+                    rtree = std::move(rtree_tmp);
+                });
 
-            print_statistics(std::cout, lib, *rtree);
-        }
+                load_r.accumulate(marks);
+                // debugging
+                //sibench::print_result(std::cout, lib, marks);
+                //print_statistics(std::cout, lib, *rtree);
+            }
 #else
 #error Unknown rtree loading method
 #endif
 
-        // Benchmark: query
-        {
-            size_t query_found = 0;
-
-            auto const marks = sibench::benchmark("query", sibench::max_queries, boxes,
-                [&rtree, &query_found] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+            // Benchmark: query
             {
-                for (size_t i = 0; i < iterations; ++i)
-                {
-                    auto const& box = boxes[i];
-                    coord_array_t const p1 = { std::get<0>(box) - 10, std::get<1>(box) - 10 };
-                    coord_array_t const p2 = { std::get<2>(box) + 10, std::get<3>(box) + 10 };
-                    si::Region region(
-                        si::Point(p1.data(), p1.size()),
-                        si::Point(p2.data(), p2.size()));
-                    query_visitor qvisitor;
-                    rtree->intersectsWithQuery(region, qvisitor);
+                size_t query_found = 0;
 
-                    query_found += qvisitor.m_io_found;
-                }
-            });
-            sibench::print_result(std::cout, lib, marks);
-            sibench::print_query_count(std::cout, lib, query_found);
-        }
-        
+                auto const marks = sibench::benchmark("query", sibench::max_queries, boxes,
+                    [&rtree, &query_found] (sibench::boxes2d_t const& boxes, std::size_t iterations)
+                {
+                    for (size_t i = 0; i < iterations; ++i)
+                    {
+                        auto const& box = boxes[i];
+                        coord_array_t const p1 = { std::get<0>(box) - 10, std::get<1>(box) - 10 };
+                        coord_array_t const p2 = { std::get<2>(box) + 10, std::get<3>(box) + 10 };
+                        si::Region region(
+                            si::Point(p1.data(), p1.size()),
+                            si::Point(p2.data(), p2.size()));
+                        query_visitor qvisitor;
+                        rtree->intersectsWithQuery(region, qvisitor);
+
+                        query_found += qvisitor.m_io_found;
+                    }
+                });
+
+                query_r.accumulate(marks);
+
+                // debugging
+                //sibench::print_result(std::cout, lib, marks);
+                //sibench::print_query_count(std::cout, lib, query_found);
+            }
+
+            // single line per run
+            sibench::print_result(std::cout, lib, load_r, query_r);
+
+        } // for capacity
+
         return EXIT_SUCCESS;
     }
     catch (Tools::Exception& e)
