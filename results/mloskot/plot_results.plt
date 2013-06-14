@@ -13,6 +13,7 @@
 #set terminal wxt
 set key on left horizontal
 #set terminal pngcairo size 800,600 font ",10"
+#outfmt = ".png"
 set terminal svg size 800,600 dynamic font ",10"
 outfmt = ".svg"
 libs = "bgi lsi"
