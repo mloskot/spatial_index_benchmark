@@ -16,6 +16,7 @@ if [[ ! -d $1 ]]; then
 fi
 
 BDIR="$1"
+LOGEXT="dat"
 #
 # Benchmark iterative loading (takes long time, skipped on Travis CI)
 #
@@ -24,7 +25,7 @@ for variant in linear quadratic rstar
 do
     for benchmark in `find $BDIR -type f -name "*${variant}" -executable | sort`
     do
-        ${benchmark} > ${benchmark}.log
+        ${benchmark} > ${benchmark}.${LOGEXT}
     done;
 done;
 fi
@@ -36,6 +37,6 @@ for variant in linear quadratic rstar
 do
     for benchmark in `find $BDIR -type f -name "*${variant}_blk" -executable | sort`
     do
-        ${benchmark} > ${benchmark}.log
+        ${benchmark} > ${benchmark}.${LOGEXT}
     done;
 done;
