@@ -37,7 +37,7 @@ plot for [l in libs] for [m in algos] \
 #
 # Plot querying times
 #
-set ylabel "query 10K of 1M objects in seconds"
+set ylabel "query 100K of 1M objects in seconds"
 
 set title "Query times for each of R-tree construction methods"
 set output "benchmark_rtree_query_itr_vs_blk".outfmt

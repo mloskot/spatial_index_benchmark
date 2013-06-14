@@ -91,7 +91,7 @@
 		<text> 200</text>
 	</g>
 	<path  d='M46.0,45.1 L46.0,552.0 L779.2,552.0 L779.2,45.1 L46.0,45.1 Z  h0.01'/>	<g transform="translate(14.6,298.6) rotate(270)" style="stroke:none; fill:black; font-family:Arial; font-size:10.00pt; text-anchor:middle">
-		<text>query 10K of 1M objects in seconds</text>
+		<text>query 100K of 1M objects in seconds</text>
 	</g>
 	<g transform="translate(412.6,593.2)" style="stroke:none; fill:black; font-family:Arial; font-size:10.00pt; text-anchor:middle">
 		<text>max capacity (min capacity = max * 0.5)</text>
