@@ -28,7 +28,7 @@ First prototype, API usage and parameters matched as much as I could, hopefully 
 
 *TODO: explain details*
 
-Complete set of result logs in [results](/mloskot/spatial_index_benchmark/tree/master/results) directory.
+Complete set of result logs in [results](results) directory.
 
 ### Legend
 ------
