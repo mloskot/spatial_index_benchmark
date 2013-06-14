@@ -1,6 +1,8 @@
 # spatial_index_benchmark
 
-Simple benchmark for spatial index implementations.
+Simple non-academic performance comparison of available open source
+implementations of R-tree spatial index using *linear*, *quadratic and R-star
+balancing algorithms as well as bulk loading (Sort-Tile-Recurse or combined methods).
 
 List of currently measured libraries:
 * [Boost.Geometry](http://www.boost.org/libs/geometry/)
