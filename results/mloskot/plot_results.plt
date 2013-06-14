@@ -11,9 +11,10 @@
 ################################################################################
 #
 #set terminal wxt
-set terminal pngcairo size 800,600 font ",10"
 set key on left horizontal
-outfmt = ".png"
+#set terminal pngcairo size 800,600 font ",10"
+set terminal svg size 800,600 dynamic font ",10"
+outfmt = ".svg"
 libs = "bgi lsi"
 algos = "linear quadratic rstar"
 
