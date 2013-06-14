@@ -77,7 +77,7 @@ endif()
 
 ################################################################################
 # benchmark: libspatialindex 
-set(BSI benchmark_lsi)
+set(BSI lsi)
 
 # choose rtree split algorithm
 foreach(split_variant linear quadratic rstar)
@@ -86,7 +86,13 @@ foreach(split_variant linear quadratic rstar)
   # choose iterative insertion or bulk loading (Split-Tile-Recurse)
   foreach(load_variant itr blk)
     string(TOUPPER "${load_variant}" LOADVARU)
-    set(TARGET_BSI ${BSI}_${split_variant}_${load_variant})
+
+    if(${load_variant} STREQUAL "itr")
+      set(TARGET_BSI ${BSI}_${split_variant})
+    else()
+      set(TARGET_BSI ${BSI}_${split_variant}_${load_variant})
+    endif()
+
     msg(${TARGET_BSI})
     add_executable(${TARGET_BSI} ${SRC_COMMON} benchmark_spatialindex.cpp)
     target_link_libraries(${TARGET_BSI} ${EXTRA_LIBS} ${SPATIALINDEX_LIBRARY})
@@ -102,7 +108,7 @@ endforeach()
 
 ################################################################################
 # benchmark: Boost.Geometry
-set(BGI benchmark_bgi)
+set(BGI bgi)
 
 # choose tree balancing algorithm
 foreach(split_variant linear quadratic rstar)
@@ -121,7 +127,18 @@ foreach(split_variant linear quadratic rstar)
     foreach(params_variant ${params_variant})
       string(TOUPPER "${params_variant}" PARAMSVARU)
 
-      set(TARGET_BGI ${BGI}_${split_variant}_${load_variant}_${params_variant})
+      if(${load_variant} STREQUAL "itr")
+        set(TARGET_BGI_BASE ${BGI}_${split_variant})
+      else()
+        set(TARGET_BGI_BASE ${BGI}_${split_variant}_${load_variant})
+      endif()
+      
+      if (BGI_ENABLE_CT AND ${params_variant} STREQUAL "CT")
+        set(TARGET_BGI ${TARGET_BGI_BASE}_${params_variant})
+      else()
+        set(TARGET_BGI ${TARGET_BGI_BASE})
+      endif()
+
       msg(${TARGET_BGI})
       add_executable(${TARGET_BGI} ${SRC_COMMON} benchmark_boost_geometry.cpp)
       target_link_libraries(${TARGET_BGI} ${EXTRA_LIBS})
