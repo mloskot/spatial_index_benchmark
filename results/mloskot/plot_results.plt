@@ -12,10 +12,10 @@
 #
 #set terminal wxt
 set key on left horizontal
-#set terminal pngcairo size 800,600 font ",10"
-#outfmt = ".png"
-set terminal svg size 800,600 dynamic font ",10"
-outfmt = ".svg"
+set terminal pngcairo size 800,600 font ",10"
+outfmt = ".png"
+#set terminal svg size 800,600 dynamic font ",10"
+#outfmt = ".svg"
 libs = "bgi lsi"
 algos = "linear quadratic rstar"
 
@@ -28,6 +28,16 @@ set ylabel "load 1M objects in seconds"
 set title "Iterative loading using R-tree balancing algorithms vs bulk loading (blk)"
 set output "benchmark_rtree_load_itr_vs_blk".outfmt
 plot for [l in libs] for [ m in algos." rstar_blk" ] \
+  l."_".m.".dat" using 1:3 with lines title l."_".m
+
+set title "BGI: Iterative loading using R-tree balancing algorithms vs bulk loading (blk)"
+set output "benchmark_rtree_load_itr_vs_blk_bgi".outfmt
+plot for [l in "bgi"] for [ m in algos." rstar_blk" ] \
+  l."_".m.".dat" using 1:3 with lines title l."_".m
+
+set title "LSI: Iterative loading using R-tree balancing algorithms vs bulk loading (blk)"
+set output "benchmark_rtree_load_itr_vs_blk_lsi".outfmt
+plot for [l in "lsi"] for [ m in algos." rstar_blk" ] \
   l."_".m.".dat" using 1:3 with lines title l."_".m
 
 set title "Bulk loading (blk) times not affected by R-tree balancing algorithms"
@@ -43,6 +53,16 @@ set ylabel "query 100K of 1M objects in seconds"
 set title "Query times for each of R-tree construction methods"
 set output "benchmark_rtree_query_itr_vs_blk".outfmt
 plot for [l in libs] for [ m in algos." rstar_blk" ] \
+  l."_".m.".dat" using 1:4 with lines title l."_".m
+
+set title "BGI: Query times for each of R-tree construction methods"
+set output "benchmark_rtree_query_itr_vs_blk_bgi".outfmt
+plot for [l in "bgi"] for [ m in algos." rstar_blk" ] \
+  l."_".m.".dat" using 1:4 with lines title l."_".m
+
+set title "LSI: Query times for each of R-tree construction methods"
+set output "benchmark_rtree_query_itr_vs_blk_lsi".outfmt
+plot for [l in "lsi"] for [ m in algos." rstar_blk" ] \
   l."_".m.".dat" using 1:4 with lines title l."_".m
 
 set title "Query times not affected by R-tree bulk loading (blk) vs balancing algorithms"
