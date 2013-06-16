@@ -10,4 +10,6 @@ cmake \
     ..
 #cmake --build .
 make -j ${NUMTHREADS}
-ctest -C Release -V --output-on-failure .  
+
+# Benchmarks run takes long time, skip
+#ctest -C Release -V --output-on-failure .  
