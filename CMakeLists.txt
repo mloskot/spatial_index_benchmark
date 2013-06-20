@@ -133,7 +133,7 @@ foreach(split_variant linear quadratic rstar)
         set(TARGET_BGI_BASE ${BGI}_${split_variant}_${load_variant})
       endif()
       
-      if (BGI_ENABLE_CT AND ${params_variant} STREQUAL "CT")
+      if (BGI_ENABLE_CT AND ${params_variant} STREQUAL "ct")
         set(TARGET_BGI ${TARGET_BGI_BASE}_${params_variant})
       else()
         set(TARGET_BGI ${TARGET_BGI_BASE})
