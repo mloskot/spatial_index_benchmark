@@ -64,31 +64,22 @@ SW: Visual Studio 2012
 
 ![query boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/mloskot/benchmark_rtree_query_itr_vs_blk_bgi.png)
 
-## TODO
-
-* find & fix bugs
-* test random points
-* test nearest neighbor and other types of queries
-* test misc values for Guttman's rtree ```M``` and ```m<=M/2``` bounds
-
 ## Disclaimer
 
-I created this benchmark driven by curiosity and for my own purposes, with hope to 
+This project is driven by curiosity and for my own purposes, with hope to 
 obtain useful and interesting results, for myself and others too.
 I do not have any objective of making ultimate performance shootout.
 This is not a rocket science, but a simple set of C++ programs, with likelyhood
 of bugs or inconsistencies. Found any, please report. Comments and improvements
 are always welcome!
 
-## License
+## Authors
 
+* Mateusz Loskot
+* Adam Wulkiewicz
+
+## License
 
 Distributed under the Boost Software License, Version 1.0.
 See accompanying file LICENSE_1_0.txt or copy at 
 http://www.boost.org/LICENSE_1_0.txt.
-
-## Copyright
-
-Copyright 2013 Mateusz Loskot <mateusz at loskot dot net>
-
-and other hackers (see copyright headers in source files).
