@@ -50,25 +50,21 @@ int main()
         // Generate random objects for indexing
         auto const boxes = sibench::generate_boxes(sibench::max_insertions);
 
-        double const fill_factor = 0.5;
+#ifdef SIBENCH_BGI_RTREE_PARAMS_RT
         for (std::size_t next_capacity = 2; next_capacity <= sibench::max_capacities; ++next_capacity)
         {
-            // accumulated results store (load, query)
-            sibench::result_info load_r;
-            sibench::result_info query_r;
-
-            // index parameters
-            std::size_t const min_capacity = next_capacity;
+            double const fill_factor = 0.5;
+            std::size_t const min_capacity = 100; //next_capacity;
             std::size_t const max_capacity = std::size_t(std::floor(min_capacity / fill_factor));
-
-            load_r.min_capacity = query_r.min_capacity = min_capacity;
-            load_r.max_capacity = query_r.max_capacity = max_capacity;
+#elif SIBENCH_BGI_RTREE_PARAMS_CT
+        {
+            std::size_t const max_capacity = 1024;
+            std::size_t const min_capacity =  340;
+#endif
 
             typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
             typedef bg::model::box<point_t> box_t;
 #ifdef SIBENCH_BGI_RTREE_PARAMS_CT
-            std::size_t const max_capacity = 100;
-            std::size_t const min_capacity =  50;
 #ifdef SIBENCH_RTREE_SPLIT_LINEAR
             typedef bgi::rtree<box_t, bgi::linear<max_capacity, min_capacity>> rtree_t;
 #elif SIBENCH_RTREE_SPLIT_QUADRATIC
@@ -93,6 +89,13 @@ int main()
             rtree_t rtree(rtree_parameters);
 
 #endif // SIBENCH_BGI_RTREE_PARAMS_RT
+
+            // accumulated results store (load, query)
+            sibench::result_info load_r;
+            sibench::result_info query_r;
+
+            load_r.min_capacity = query_r.min_capacity = min_capacity;
+            load_r.max_capacity = query_r.max_capacity = max_capacity;
 
             // Benchmark: insert
             {
