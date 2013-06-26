@@ -24,7 +24,8 @@ and libraries (for Windows, use [OSGeo4W](http://trac.osgeo.org/osgeo4w/).
 
 ## Results
 
-First prototype, API usage and parameters matched as much as I could, hopefully without major bugs.
+First prototype, API usage and parameters matched as much as I could, 
+hopefully without major bugs.  
 
 *TODO: explain details*
 
