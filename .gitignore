@@ -15,3 +15,9 @@
 # Build directories
 _build*
 build*
+
+# qtcreator
+*.config
+*.creator*
+*.files
+*.includes
