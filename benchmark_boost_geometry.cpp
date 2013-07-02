@@ -54,7 +54,7 @@ int main()
         for (std::size_t next_capacity = 2; next_capacity <= sibench::max_capacities; ++next_capacity)
         {
             double const fill_factor = 0.5;
-            std::size_t const min_capacity = 100; //next_capacity;
+            std::size_t const min_capacity = next_capacity;
             std::size_t const max_capacity = std::size_t(std::floor(min_capacity / fill_factor));
 #elif SIBENCH_BGI_RTREE_PARAMS_CT
         {
