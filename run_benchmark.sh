@@ -15,6 +15,11 @@ if [[ ! -d $1 ]]; then
     exit 1
 fi
 
+RDIR="$PWD"
+if [[ -d $2 ]]; then
+    RDIR="$2"
+fi 
+
 BDIR="$1"
 LOGEXT="dat"
 #
@@ -25,7 +30,9 @@ for variant in linear quadratic rstar
 do
     for benchmark in `find $BDIR -type f -name "*${variant}" -executable | sort`
     do
-        ${benchmark} > ${benchmark}.${LOGEXT}
+        name=`basename ${benchmark}`
+        echo "$name"
+        ${benchmark} > ${RDIR}/${name}.${LOGEXT}
     done;
 done;
 fi
@@ -37,6 +44,8 @@ for variant in linear quadratic rstar
 do
     for benchmark in `find $BDIR -type f -name "*${variant}_blk" -executable | sort`
     do
-        ${benchmark} > ${benchmark}.${LOGEXT}
+        name=`basename ${benchmark}`
+        echo "$name"
+        ${benchmark} > ${RDIR}/${name}.${LOGEXT}
     done;
 done;
