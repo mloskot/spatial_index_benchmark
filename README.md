@@ -55,15 +55,15 @@ SW: Visual Studio 2012
 
 * Loading times for each of the R-tree construction methods
 
-![load libspatialindex](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/1/benchmark_rtree_load_itr_vs_blk_lsi.png)
+![load libspatialindex](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_load_itr_vs_blk_lsi.png)
 
-![load boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/1/benchmark_rtree_load_itr_vs_blk_bgi.png)
+![load boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_load_itr_vs_blk_bgi.png)
 
 * Query times for each of the R-tree construction methods
 
-![query libspatialindex](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/1/benchmark_rtree_query_itr_vs_blk_lsi.png)
+![query libspatialindex](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_query_itr_vs_blk_lsi.png)
 
-![query boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/1/benchmark_rtree_query_itr_vs_blk_bgi.png)
+![query boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_query_itr_vs_blk_bgi.png)
 
 ## Disclaimer
 
