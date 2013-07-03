@@ -31,23 +31,6 @@ hopefully without major bugs.
 
 Complete set of result logs in [results](results) directory.
 
-### Legend
-------
-
-* ```bgi``` - boost::geometry::index (_rt is dynamic variant: L,Q,R etc. parameters specified at run-time)
-* ```lsi``` - libspatialindex
-* ```ct``` - Boost.Geometry-only, compile-time specification of rtree parameters
-* ```rt``` (or non suffix) - Boost.Geometry-only, run-time specification of rtree parameters
-* ```L``` - linear
-* ```Q``` - quadratic
-* ```R``` - rstar
-* ```itr (or no suffix)```  - iterative insertion method of building rtree
-* ```blk```  - bulk loading method of building R-tree (Split-Tile-Recurse for ```lsi```, custom algorithm for ```bgi```)
-  
-* insert 1000000 - number of objects small random boxes
-* query   100000 - number of instersection-based queries with random boxes 10x larger than those inserted
-* stats generated using lsi's API and purposely written visitor for Boost.Geometry (not yet in Boost trunk)
-
 ### Visual C++ 11.0 (32-bit build)
 
 HW: Intel(R) Xeon(R) CPU E5-2687W 0 @ 3.10GHz, 16 GB RAM; OS: Windows 7 64-bit
@@ -64,6 +47,23 @@ SW: Visual Studio 2012
 ![query libspatialindex](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_query_itr_vs_blk_lsi.png)
 
 ![query boost::geometry](https://raw.github.com/mloskot/spatial_index_benchmark/master/results/2/benchmark_rtree_query_itr_vs_blk_bgi.png)
+
+### Legend
+------
+
+* ```bgi``` - boost::geometry::index (_rt is dynamic variant: L,Q,R etc. parameters specified at run-time)
+* ```lsi``` - libspatialindex
+* ```ct``` - Boost.Geometry-only, compile-time specification of rtree parameters
+* ```rt``` (or non suffix) - Boost.Geometry-only, run-time specification of rtree parameters
+* ```L``` - linear
+* ```Q``` - quadratic
+* ```R``` - rstar
+* ```itr (or no suffix)```  - iterative insertion method of building rtree
+* ```blk```  - bulk loading method of building R-tree (Split-Tile-Recurse for ```lsi```, custom algorithm for ```bgi```)
+  
+* insert 1000000 - number of objects small random boxes
+* query   100000 - number of instersection-based queries with random boxes 10x larger than those inserted
+* stats generated using lsi's API and purposely written visitor for Boost.Geometry (not yet in Boost trunk)
 
 ## Disclaimer
 
