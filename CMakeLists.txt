@@ -71,7 +71,8 @@ macro(msg T)
   message(STATUS "Configuring ${T}")
 endmacro()
 
-if (CMAKE_HOST_UNIX)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # do nothing
+elseif (CMAKE_HOST_UNIX)
   set(EXTRA_LIBS -lrt)
 endif()
 
