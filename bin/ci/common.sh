@@ -1,8 +1,4 @@
 #!/bin/bash
-if [[ "$TRAVIS" != "true" ]] ; then
-	echo "Running this script makes no sense outside of travis-ci.org"
-	exit 1
-fi
 # Functions
 tmstamp() { echo -n "[$(date '+%H:%M:%S')]" ; }
 # Environment
@@ -13,6 +9,6 @@ if [[ -f /sys/devices/system/cpu/online ]]; then
 fi
 NUMTHREADS=1 # disable MP
 export NUMTHREADS
-export BOOST_SVN="http://svn.boost.org/svn/boost/trunk/boost"
-export BOOST_PREFIX="${TRAVIS_BUILD_DIR}/trunk"
-export BOOST_HEADERS="${TRAVIS_BUILD_DIR}/trunk/boost"
+export BOOST_SVN="https://svn.boost.org/svn/boost/trunk/boost"
+export BOOST_PREFIX="${HOME}/trunk"
+export BOOST_HEADERS="${HOME}/trunk/boost"

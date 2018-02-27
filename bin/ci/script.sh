@@ -7,9 +7,9 @@ echo "Calling cmake -DBOOST_PREFIX=${BOOST_PREFIX}"
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBOOST_ROOT=${BOOST_PREFIX} \
-    ..
+    ../../..
 #cmake --build .
 make -j ${NUMTHREADS}
 
 # Benchmarks run takes long time, skip
-#ctest -C Release -V --output-on-failure .  
+#ctest -C Release -V --output-on-failure .

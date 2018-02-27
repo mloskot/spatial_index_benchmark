@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 ################################################################################
 # Script running spatial_index_benchmark programs
 # https://github.com/mloskot/spatial_index_benchmark
@@ -18,7 +18,7 @@ fi
 RDIR="$PWD"
 if [[ -d $2 ]]; then
     RDIR="$2"
-fi 
+fi
 
 BDIR="$1"
 LOGEXT="dat"
